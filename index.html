@@ -87,6 +87,30 @@ button.conn{background:none;border:0;cursor:pointer;padding:6px 4px}
 .chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
 .chip em{font-style:normal;opacity:.75;font-weight:500}
 .m-list{display:none}
+.facts .pill{white-space:normal}
+@media (max-width:640px){main .filters input{flex:1 1 100%}main .filters select{flex:1 1 40%;min-width:0}}
+.p-actions{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}
+.p-actions .btn{flex:1 1 220px;justify-content:center;padding:12px}
+.p-h{margin:20px 0 8px;font-size:15px}
+.p-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 8px}
+.people{display:flex;flex-wrap:wrap;gap:6px}
+.person{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:4px 11px;font-size:13px;font-weight:600}
+.person em{font-style:normal;color:var(--orange);font-size:11px}
+.person small{color:var(--ink-3);font-weight:600}
+.att-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.att{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:var(--surface);font-size:14px;font-weight:600}
+.att input{width:20px;height:20px;accent-color:var(--st-ok);flex:none}
+.att span{flex:1;min-width:0}
+.att small{font-size:11px;color:var(--st-ok)}
+.att.off{background:var(--surface-2)}
+.att.off small{color:var(--st-det)}
+.file-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 10px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink)}
+.file-chip button{border:0;background:none;cursor:pointer;font-size:16px;color:var(--ink-2)}
+.hist li.h-att::after{border-color:var(--st-ok)}
+.hist li.h-ev::after{border-color:var(--orange)}
+.t-proj{font-size:12px;color:var(--st-proc);font-weight:600;margin-top:1px}
+.mini .pill{flex:none}
+@media (max-width:520px){.mini .mini-m .bar{width:60px}}
 .card.tap{cursor:pointer}
 .card .ttl-row{display:flex;gap:10px;align-items:flex-start}
 .card .ttl-row h4{flex:1}
@@ -287,7 +311,7 @@ textarea.field{min-height:78px;resize:vertical}
   <div class="appbar-t"><h1 id="apptitle">Inicio</h1><p class="sub">Seguimiento de tareas por turno</p></div>
   <button class="conn" id="conn" title="Actualizar datos"><i></i><span>Conectando…</span></button>
 </header>
-<nav class="navbar" aria-label="Secciones"><button class="nav-i" data-view="dash"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><b class="badge" data-badge="dash" hidden></b></span><span>Inicio</span></button><button class="nav-i" data-view="list"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><b class="badge" data-badge="list" hidden></b></span><span>Tareas</span></button><button class="nav-i" data-view="mine"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><b class="badge" data-badge="mine" hidden></b></span><span>Mi turno</span></button><button class="nav-i" data-view="team"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.6c2.8.2 5 2.2 5 5.4"/></svg><b class="badge" data-badge="team" hidden></b></span><span>Equipo</span></button></nav>
+<nav class="navbar" aria-label="Secciones"><button class="nav-i" data-view="dash"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><b class="badge" data-badge="dash" hidden></b></span><span>Inicio</span></button><button class="nav-i" data-view="proj"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5"/></svg></span><span>Proyectos</span></button><button class="nav-i" data-view="list"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><b class="badge" data-badge="list" hidden></b></span><span>Tareas</span></button><button class="nav-i" data-view="mine"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><b class="badge" data-badge="mine" hidden></b></span><span>Mi turno</span></button><button class="nav-i" data-view="team"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.6c2.8.2 5 2.2 5 5.4"/></svg><b class="badge" data-badge="team" hidden></b></span><span>Equipo</span></button></nav>
 <button class="fab" id="fab" aria-label="Nueva tarea" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 
 <main id="main"></main>
@@ -344,7 +368,7 @@ const S = {
   email:"", rol: DEMO?"admin":"", pendingRender:false,
   canEdit: DEMO, canWrite:true,
   needLogin:false, loadErr:"",
-  cfg:null, tareas:[], loaded:false,
+  cfg:null, tareas:[], proyectos:[], registros:[], regF:"", projErr:false, openProj:null, loaded:false,
   view:"dash",
   f:{q:"",turno:"",estado:"",soloVencidas:false},
   sort:{k:"fechaCompromiso",dir:1},
@@ -375,9 +399,9 @@ function bar(p){p=Math.max(0,Math.min(100,+p||0));return `<span class="bar"><i s
 
 /* ---------- Datos: Firebase (o demostración local) ---------- */
 let fdb=null, fauth=null, unsubs=[];
-function applyEdit(t,n){["titulo","descripcion","turno","responsable","prioridad","fechaInicio","fechaCompromiso","estado"].forEach(k=>{if(n[k]!=null)t[k]=n[k]});if(t.estado==="Completada"){t.avance=100;t.fechaCierre=t.fechaCierre||hoy()}else t.fechaCierre=""}
+function applyEdit(t,n){["titulo","descripcion","turno","responsable","prioridad","fechaInicio","fechaCompromiso","estado","proyecto"].forEach(k=>{if(n[k]!=null)t[k]=n[k]});if(t.estado==="Completada"){t.avance=100;t.fechaCierre=t.fechaCierre||hoy()}else t.fechaCierre=""}
 function applyReport(t,e,ids){const h={t:new Date().toISOString(),avance:+e.avance||0,estado:e.estado,comentario:e.comentario||"",por:e.por||"",fotos:ids,usuario:S.email||""};t.historial=t.historial||[];t.historial.push(h);t.avance=h.avance;t.estado=h.estado;if(h.comentario)t.ultimoComentario=h.comentario;if(h.estado==="Completada"){t.avance=100;t.fechaCierre=t.fechaCierre||hoy()}else t.fechaCierre="";t.actualizado=h.t}
-function demoDB(){try{return JSON.parse(localStorage.getItem("htp_demo"))||{cfg:null,tareas:[]}}catch(e){return {cfg:null,tareas:[]}}}
+function demoDB(){let d;try{d=JSON.parse(localStorage.getItem("htp_demo"))}catch(e){}d=d||{cfg:null,tareas:[]};d.proyectos=d.proyectos||[];d.registros=d.registros||[];return d}
 function demoSave(d){try{localStorage.setItem("htp_demo",JSON.stringify(d))}catch(e){throw new Error("El almacenamiento de este navegador está lleno.")}}
 function upsertLocal(t){const i=S.tareas.findIndex(x=>x.id===t.id);if(i>=0)S.tareas[i]=t;else S.tareas.push(t);render()}
 function stripId(t){const o=JSON.parse(JSON.stringify(t));delete o.id;return o}
@@ -455,7 +479,7 @@ async function toB64(file){
 async function photoSrc(id){
   if(photoCache.has(id))return photoCache.get(id);
   let src="";
-  if(DEMO){const b=lsGet("htp_demo_foto_"+id);if(b)src="data:image/jpeg;base64,"+b}
+  if(DEMO){const b=lsGet("htp_demo_foto_"+id);if(b)src=b.indexOf("data:")===0?b:"data:image/jpeg;base64,"+b}
   else{try{const s=await fdb.collection("fotos").doc(id).get();if(s.exists)src=s.data().data||""}catch(e){}}
   if(src)photoCache.set(id,src);return src;
 }function hydratePhotos(root){
@@ -465,8 +489,8 @@ async function photoSrc(id){
 /* ---------- Render principal ---------- */
 function render(){
   document.querySelectorAll(".nav-i").forEach(b=>{if(b.dataset.view===S.view)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
-  document.getElementById("apptitle").textContent={dash:"Inicio",list:"Tareas",mine:"Mi turno",team:"Equipo"}[S.view];
-  document.getElementById("fab").hidden=!(S.canEdit&&(S.view==="dash"||S.view==="list"));
+  document.getElementById("apptitle").textContent={dash:"Inicio",proj:"Proyectos",list:"Tareas",mine:"Mi turno",team:"Equipo"}[S.view];
+  document.getElementById("fab").hidden=!(S.canEdit&&(S.view==="dash"||S.view==="list"||S.view==="proj"));
   const nl=S.tareas.filter(vencida).length,bl=document.querySelector('[data-badge="list"]');bl.textContent=nl;bl.hidden=!nl;
   const nm=S.tareas.filter(t=>t.turno===S.miTurno&&t.estado!=="Completada").length,bm=document.querySelector('[data-badge="mine"]');bm.textContent=nm;bm.hidden=!nm;
   const m=document.getElementById("main");
@@ -476,12 +500,14 @@ function render(){
   if(DEMO)html+=`<div class="banner">Modo demostración: los datos se guardan solo en este navegador. Para compartirlos con los jefes de turno, conecta Firebase (ver instructivo).</div>`;
   if(!S.loaded){m.innerHTML=html+(S.loadErr?`<div class="banner">${esc(S.loadErr)}<div style="margin-top:10px">${S.email?`<button class="btn" id="retry">Cerrar sesión</button>`:`<button class="btn" id="retry">Reintentar</button>`}</div></div>`:`<p class="muted">Cargando tareas…</p>`);const rt=m.querySelector("#retry");if(rt)rt.onclick=()=>{if(S.email)logout();else location.reload()};return}
   if(S.view==="dash")html+=viewDash();
+  else if(S.view==="proj")html+=viewProj();
   else if(S.view==="list")html+=viewList();
   else if(S.view==="mine")html+=viewMine();
   else html+=viewTeam();
   m.innerHTML=html;
   bindView(m);
   if(S.openId&&document.getElementById("dlg").open)refreshDetail();
+  else if(S.openProj&&document.getElementById("dlg").open&&document.querySelector("#dlg [data-proj-detail]"))buildProj();
 }
 
 /* ---------- Dashboard ---------- */
@@ -526,6 +552,8 @@ function viewDash(){
       <div class="shift-foot"><span class="muted">${s.ok} completadas</span><button class="linkbtn" data-goturno="${esc(tr.id)}">Ver tareas</button></div>
     </article>`}).join("")+`</div>`;
   const li=t=>`<li data-open="${esc(t.id)}"><span class="tag">${esc(t.turno)}</span><span class="mini-t">N° ${F[t.id]} ${esc(t.titulo)}</span><span class="mini-m">${fmtD(t.fechaCompromiso)}</span></li>`;
+  const pa=S.proyectos.filter(p=>p.estado!=="Cerrado");
+  if(pa.length)h+=`<section class="panel" style="margin-bottom:14px"><h3>Proyectos en curso</h3><ul class="mini">${pa.slice(0,8).map(p=>{const s=pStats(p);return `<li data-proj="${esc(p.id)}"><span class="mini-t">${esc(p.nombre)}</span>${pPill(p)}<span class="mini-m">${bar(s.avTot)}</span></li>`}).join("")}</ul></section>`;
   h+=`<div class="two">
     <section class="panel"><h3>Vencidas sin cerrar</h3>${lates.length?`<ul class="mini">${lates.slice(0,8).map(li).join("")}</ul>`:`<p class="empty">No hay compromisos vencidos.</p>`}</section>
     <section class="panel"><h3>Vencen en los próximos 7 días</h3>${prox.length?`<ul class="mini">${prox.slice(0,8).map(li).join("")}</ul>`:`<p class="empty">Nada vence esta semana.</p>`}</section>
@@ -535,10 +563,265 @@ function viewDash(){
   return h;
 }
 
+/* ---------- Proyectos ---------- */
+const P_ESTADOS=["Planificado","En ejecución","Detenido","Cerrado"];
+const P_COLOR={"Planificado":"var(--st-pend)","En ejecución":"var(--st-proc)","Detenido":"var(--st-det)","Cerrado":"var(--st-ok)"};
+function proyOf(id){return id?S.proyectos.find(p=>p.id===id):null}
+function tareasDe(pid){return S.tareas.filter(t=>t.proyecto===pid)}
+function regsDe(pid){return S.registros.filter(r=>r.proyecto===pid).sort((a,b)=>((b.fecha||"")+(b.creado||"")).localeCompare((a.fecha||"")+(a.creado||"")))}
+function pStats(p){
+  const l=tareasDe(p.id);const s=stats(l);
+  if(l.length)s.avTot=Math.round(l.reduce((a,t)=>a+(t.estado==="Completada"?100:(+t.avance||0)),0)/l.length);
+  else{const ev=regsDe(p.id).find(r=>r.tipo==="evidencia"&&r.avance!=null&&r.avance!=="");s.avTot=ev?+ev.avance:(p.estado==="Cerrado"?100:0)}
+  return s;
+}
+function pLate(p){return p.estado!=="Cerrado"&&p.fechaTermino&&p.fechaTermino<hoy()}
+function pPill(p){const late=pLate(p);return `<span class="pill${late?" late":""}"><i style="background:${P_COLOR[p.estado]||"var(--st-pend)"}"></i>${esc(p.estado||"Planificado")}${late?" · atrasado":""}</span>`}
+function todasPersonas(){return [...new Set((S.cfg||DEFAULT_CFG).turnos.flatMap(t=>[t.jefe,...(t.operadores||[])]).filter(Boolean))]}
+function asistenciaDe(p){
+  const regs=regsDe(p.id).filter(r=>r.tipo==="asistencia");const m={};
+  (p.equipo||[]).forEach(n=>m[n]={p:0,t:0});
+  regs.forEach(r=>(r.asistentes||[]).forEach(a=>{m[a.nombre]=m[a.nombre]||{p:0,t:0};m[a.nombre].t++;if(a.presente)m[a.nombre].p++}));
+  return {regs:regs.length,m:m};
+}
+
+function viewProj(){
+  const ps=[...S.proyectos].sort((a,b)=>((a.estado==="Cerrado")-(b.estado==="Cerrado"))||(a.fechaTermino||"9").localeCompare(b.fechaTermino||"9"));
+  let h=`<div class="sec-head"><div><h2>Proyectos</h2><p>Cada proyecto reúne su equipo, sus tareas, el registro de asistencia y la evidencia de avance.</p></div>
+  <div class="actions">${S.canEdit?`<button class="btn primary desk-only" data-act="newproj">${ico("plus")}Nuevo proyecto</button>`:""}<button class="btn" data-act="xlsx">${ico("down")}Descargar Excel</button></div></div>`;
+  if(S.projErr)h+=`<div class="banner">No se pudieron leer los proyectos o sus registros. ${S.canEdit?"Pega las reglas nuevas en Firestore y publícalas.":"Avisa al jefe de operaciones."}</div>`;
+  else if(!ps.length)h+=`<p class="banner">Aún no hay proyectos. ${S.canEdit?"Crea uno con “Nuevo proyecto”.":"El jefe de operaciones los creará."}</p>`;
+  h+=`<div class="cards">`+ps.map(p=>{const s=pStats(p),late=pLate(p),rg=regsDe(p.id);const na=rg.filter(r=>r.tipo==="asistencia").length,ne=rg.length-na;
+    return `<article class="card tap${late?" late":""}" data-proj="${esc(p.id)}" tabindex="0" role="button">
+    <div class="row">${pPill(p)}<span class="num">${(p.equipo||[]).length} en equipo</span></div>
+    <h4>${esc(p.nombre)}</h4>
+    <div class="meta"><span>Resp.: ${esc(p.responsable||"Sin asignar")}</span></div>
+    <div class="meta"><span>Ejecución <b>${fmtD(p.fechaInicio)}</b></span><span>Cierre <b${late?' style="color:var(--late)"':""}>${fmtD(p.fechaTermino)}</b></span></div>
+    <div>${bar(s.avTot)}</div>
+    <div class="meta"><span>${s.total} tarea${s.total===1?"":"s"}${s.late?` (<span style="color:var(--late);font-weight:700">${s.late} vencidas</span>)`:""}</span><span>${na} asistencia${na===1?"":"s"}</span><span>${ne} evidencia${ne===1?"":"s"}</span></div>
+  </article>`}).join("")+`</div>`;
+  return h;
+}
+
+/* --- Detalle del proyecto --- */
+function openProj(id){S.openId=null;S.openProj=id;S.regF=S.regF||"";const dlg=document.getElementById("dlg");buildProj();if(!dlg.open)dlg.showModal()}
+function adjHTML(fotos){
+  if(!fotos||!fotos.length)return "";
+  return `<div class="thumbs">${fotos.map(f=>{const id=typeof f==="string"?f:f.id;const k=typeof f==="string"?"img":(f.tipo||"img");
+    return k==="pdf"?`<button class="file-chip" data-pdf="${esc(id)}">📄 ${esc(f.nombre||"Documento PDF")}</button>`:`<div class="thumb"><img alt="Evidencia" data-ref="${esc(id)}" data-zoom></div>`}).join("")}</div>`;
+}
+function bindAdj(root){
+  hydratePhotos(root);
+  root.querySelectorAll("img[data-zoom]").forEach(img=>img.onclick=()=>{if(!img.src)return;const v=document.getElementById("viewer");v.querySelector("img").src=img.src;v.classList.add("on")});
+  root.querySelectorAll("[data-pdf]").forEach(b=>b.onclick=async()=>{const src=await photoSrc(b.dataset.pdf);if(!src){toast("No se pudo abrir el PDF",true);return}
+    const bin=atob(src.split(",")[1]);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+    window.open(URL.createObjectURL(new Blob([u],{type:"application/pdf"})),"_blank")});
+}
+function buildProj(){
+  const dlg=document.getElementById("dlg");const p=proyOf(S.openProj);
+  if(!p){dlg.innerHTML=`<div class="dlg-head"><h3 style="flex:1">Proyecto no disponible</h3><button class="close" data-close aria-label="Cerrar">×</button></div><div class="dlg-body"><p class="muted">Este proyecto fue eliminado.</p></div>`;dlg.querySelector("[data-close]").onclick=()=>dlg.close();return}
+  const F=folios(),s=pStats(p),late=pLate(p),as=asistenciaDe(p);
+  const l=tareasDe(p.id).sort((a,b)=>((a.estado==="Completada")-(b.estado==="Completada"))||(a.fechaCompromiso||"").localeCompare(b.fechaCompromiso||""));
+  const regs=regsDe(p.id).filter(r=>!S.regF||r.tipo===S.regF);
+  const dr=p.fechaTermino?diasEntre(hoy(),p.fechaTermino):null;
+  const nA=regsDe(p.id).filter(r=>r.tipo==="asistencia").length,nE=regsDe(p.id).length-nA;
+  dlg.innerHTML=`<div data-proj-detail></div><div class="dlg-head"><div style="flex:1"><h3>${esc(p.nombre)}</h3><div class="sub">Responsable: ${esc(p.responsable||"sin asignar")}</div></div>
+    ${S.canEdit?`<button class="btn" data-pedit>Editar</button>`:""}<button class="close" data-close aria-label="Cerrar">×</button></div>
+  <div class="dlg-body">
+    <div class="facts">
+      <div>Estado<b>${pPill(p)}</b></div>
+      <div>Avance<b>${bar(s.avTot)}</b></div>
+      <div>Fecha de ejecución<b>${fmtD(p.fechaInicio)}</b></div>
+      <div>Fecha de cierre<b style="${late?"color:var(--late)":""}">${fmtD(p.fechaTermino)}${p.estado!=="Cerrado"&&dr!=null?` <span class="muted">(${dr<0?Math.abs(dr)+" d de atraso":dr===0?"hoy":"quedan "+dr+" d"})</span>`:""}</b></div>
+    </div>
+    ${p.descripcion?`<p class="desc">${esc(p.descripcion)}</p>`:""}
+    <div class="p-actions">
+      <button class="btn navy" data-reg="asistencia">${ico("check")}Registrar asistencia</button>
+      <button class="btn primary" data-reg="evidencia">${ico("cam")}Subir evidencia de avance</button>
+    </div>
+
+    <h4 class="p-h">Equipo <span class="muted">(${(p.equipo||[]).length})</span></h4>
+    ${(p.equipo||[]).length?`<div class="people">${p.equipo.map(n=>{const a=as.m[n];return `<span class="person">${esc(n)}${n===p.responsable?' <em>resp.</em>':""}${a&&a.t?` <small>${a.p}/${a.t}</small>`:""}</span>`}).join("")}</div>
+      ${as.regs?`<p class="hint">Los números indican asistencias sobre jornadas registradas.</p>`:""}`:`<p class="empty">Sin equipo definido.${S.canEdit?" Agrégalo con “Editar”.":""}</p>`}
+
+    <div class="p-row"><h4 class="p-h" style="margin:0">Tareas <span class="muted">(${s.total})</span></h4>${S.canEdit?`<button class="btn" data-padd>${ico("plus")}Agregar tarea</button>`:""}</div>
+    ${l.length?`<ul class="mini">${l.map(t=>`<li data-ptask="${esc(t.id)}"><span class="tag">${esc(t.turno)}</span><span class="mini-t">N° ${F[t.id]} ${esc(t.titulo)}</span>${pill(t)}<span class="mini-m">${+t.avance||0}%</span></li>`).join("")}</ul>`:`<p class="empty">Sin tareas asociadas.</p>`}
+
+    <h4 class="p-h">Registros</h4>
+    <div class="chips" role="group" aria-label="Filtrar registros">
+      <button class="chip" data-rf="" aria-pressed="${!S.regF}">Todos <em>${nA+nE}</em></button>
+      <button class="chip" data-rf="asistencia" aria-pressed="${S.regF==="asistencia"}">Asistencia <em>${nA}</em></button>
+      <button class="chip" data-rf="evidencia" aria-pressed="${S.regF==="evidencia"}">Evidencias <em>${nE}</em></button>
+    </div>
+    ${regs.length?`<ul class="hist">${regs.map(r=>{const pres=(r.asistentes||[]).filter(a=>a.presente),aus=(r.asistentes||[]).filter(a=>!a.presente);
+      return `<li class="${r.tipo==="asistencia"?"h-att":"h-ev"}"><div class="h-meta">${fmtD(r.fecha)}${r.por?", "+esc(r.por):""}${S.canEdit?` <button class="linkbtn" data-rdel="${esc(r.id)}" style="color:var(--st-det);font-size:12px;margin-left:6px">Eliminar</button>`:""}</div>
+      ${r.tipo==="asistencia"?`<div class="h-line">Asistencia: ${pres.length} de ${(r.asistentes||[]).length} presentes${r.actividad?" · "+esc(r.actividad):""}</div>
+        ${pres.length?`<p class="h-c">Presentes: ${pres.map(a=>esc(a.nombre)).join(", ")}</p>`:""}${aus.length?`<p class="h-c" style="color:var(--st-det)">Ausentes: ${aus.map(a=>esc(a.nombre)).join(", ")}</p>`:""}`
+      :`<div class="h-line">Evidencia de avance${r.avance!=null&&r.avance!==""?" · "+(+r.avance)+"%":""}</div>`}
+      ${r.comentario?`<p class="h-c">${esc(r.comentario)}</p>`:""}${adjHTML(r.fotos)}</li>`}).join("")}</ul>`:`<p class="empty">Aún no hay registros${S.regF?" de este tipo":""}.</p>`}
+  </div>`;
+  dlg.querySelector("[data-close]").onclick=()=>dlg.close();
+  const pe=dlg.querySelector("[data-pedit]");if(pe)pe.onclick=()=>openProjForm(p.id);
+  const pa=dlg.querySelector("[data-padd]");if(pa)pa.onclick=()=>openForm(null,{proyecto:p.id});
+  dlg.querySelectorAll("[data-ptask]").forEach(li=>li.onclick=()=>openDetail(li.dataset.ptask));
+  dlg.querySelectorAll("[data-reg]").forEach(b=>b.onclick=()=>openRegForm(p.id,b.dataset.reg));
+  dlg.querySelectorAll("[data-rf]").forEach(b=>b.onclick=()=>{S.regF=b.dataset.rf;buildProj()});
+  dlg.querySelectorAll("[data-rdel]").forEach(b=>b.onclick=async()=>{if(!confirm("¿Eliminar este registro y sus archivos?"))return;try{await deleteRegistro(b.dataset.rdel);toast("Registro eliminado")}catch(e){toast(e.message||"No se pudo eliminar.",true)}});
+  bindAdj(dlg);
+}
+
+/* --- Formulario de proyecto --- */
+function openProjForm(id){
+  const p=id?proyOf(id):null;S.openProj=null;S.openId=null;
+  const d=p?JSON.parse(JSON.stringify(p)):{nombre:"",descripcion:"",equipo:[],responsable:"",fechaInicio:hoy(),fechaTermino:addDays(hoy(),30),estado:"Planificado"};
+  d.equipo=d.equipo||[];
+  const base=todasPersonas();
+  const dlg=document.getElementById("dlg");
+  const drawTeam=()=>{const all=[...new Set([...base,...d.equipo])];
+    dlg.querySelector("#p_team").innerHTML=all.length?all.map(n=>`<button type="button" class="chip" data-tm="${esc(n)}" aria-pressed="${d.equipo.includes(n)}">${d.equipo.includes(n)?"✓ ":""}${esc(n)}</button>`).join(""):`<span class="muted">Registra a los jefes y operadores en la sección Equipo, o agrega nombres aquí abajo.</span>`;
+    dlg.querySelectorAll("[data-tm]").forEach(b=>b.onclick=()=>{const n=b.dataset.tm;d.equipo=d.equipo.includes(n)?d.equipo.filter(x=>x!==n):[...d.equipo,n];drawTeam();drawResp()});
+    dlg.querySelector("#p_tc").textContent=d.equipo.length+" seleccionad"+(d.equipo.length===1?"o":"os");};
+  const drawResp=()=>{const sel=dlg.querySelector("#p_re");const cur=sel.value||d.responsable;const opts=[...new Set([...d.equipo,...(cur?[cur]:[])])];
+    sel.innerHTML=`<option value="">Sin asignar</option>`+opts.map(n=>`<option${n===cur?" selected":""}>${esc(n)}</option>`).join("")};
+  dlg.innerHTML=`<div class="dlg-head"><div style="flex:1"><h3>${p?"Editar proyecto":"Nuevo proyecto"}</h3><div class="sub">Define el equipo, el responsable y las fechas del proyecto.</div></div><button class="close" data-close aria-label="Cerrar">×</button></div>
+  <div class="dlg-body"><div class="grid2">
+    <div class="fl full"><label for="p_no">Nombre del proyecto</label><input class="field" id="p_no" maxlength="120" value="${esc(d.nombre)}" placeholder="Ej.: Mantención fondo marino Sitio Norte"></div>
+    <div class="fl full"><label for="p_de">Descripción</label><textarea class="field" id="p_de" placeholder="Objetivo, alcance y entregables">${esc(d.descripcion)}</textarea></div>
+    <div class="fl full"><label>Equipo <span class="muted" id="p_tc"></span></label>
+      <div class="people" id="p_team"></div>
+      <div class="op-row" style="margin-top:8px"><input class="field" id="p_new" placeholder="Agregar otra persona (contratista, externo…)" maxlength="80"><button type="button" class="btn" id="p_add">Agregar</button></div></div>
+    <div class="fl"><label for="p_re">Responsable</label><select class="field" id="p_re"></select></div>
+    <div class="fl"><label for="p_es">Estado</label><select class="field" id="p_es">${P_ESTADOS.map(e=>`<option${d.estado===e?" selected":""}>${e}</option>`).join("")}</select></div>
+    <div class="fl"><label for="p_fi">Fecha de ejecución</label><input class="field" type="date" id="p_fi" value="${esc(d.fechaInicio)}"></div>
+    <div class="fl"><label for="p_ft">Fecha de cierre</label><input class="field" type="date" id="p_ft" value="${esc(d.fechaTermino)}"></div>
+  </div>
+  <p class="hint" id="p_err" role="alert"></p>
+  <div class="dlg-actions">${p?`<button class="btn ghost" data-pdel style="margin-right:auto;color:var(--st-det)">Eliminar proyecto</button>`:""}<button class="btn" data-close>Cancelar</button><button class="btn primary" data-psave>${p?"Guardar cambios":"Crear proyecto"}</button></div></div>`;
+  drawTeam();drawResp();
+  const add=()=>{const i=dlg.querySelector("#p_new");const n=i.value.trim();if(!n)return;if(!d.equipo.includes(n))d.equipo.push(n);i.value="";drawTeam();drawResp();i.focus()};
+  dlg.querySelector("#p_add").onclick=add;dlg.querySelector("#p_new").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();add()}};
+  dlg.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>p?openProj(p.id):dlg.close());
+  const del=dlg.querySelector("[data-pdel]");
+  if(del)del.onclick=async()=>{if(!confirm("¿Eliminar este proyecto y sus registros de asistencia y evidencias? Las tareas no se borran: quedarán sin proyecto."))return;try{await deleteProj(p.id);dlg.close();toast("Proyecto eliminado")}catch(e){toast(e.message||"No se pudo eliminar.",true)}};
+  dlg.querySelector("[data-psave]").onclick=async ev=>{
+    const g=i=>dlg.querySelector(i).value,err=dlg.querySelector("#p_err");
+    if(!g("#p_no").trim()){err.textContent="Escribe el nombre del proyecto.";dlg.querySelector("#p_no").focus();return}
+    if(g("#p_fi")&&g("#p_ft")&&g("#p_ft")<g("#p_fi")){err.textContent="La fecha de cierre no puede ser anterior a la de ejecución.";return}
+    const n={id:p?p.id:"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nombre:g("#p_no").trim(),descripcion:g("#p_de").trim(),equipo:d.equipo,responsable:g("#p_re"),estado:g("#p_es"),fechaInicio:g("#p_fi"),fechaTermino:g("#p_ft")};
+    ev.target.disabled=true;
+    try{await saveProj(n);toast(p?"Proyecto actualizado":"Proyecto creado");openProj(n.id)}catch(e){err.textContent=e.message||"No se pudo guardar.";ev.target.disabled=false}
+  };
+  if(!dlg.open)dlg.showModal();
+  setTimeout(()=>dlg.querySelector("#p_no").focus(),30);
+}
+
+/* --- Ventana de registro: asistencia o evidencia --- */
+let regFiles=[];
+function openRegForm(pid,tipo){
+  const p=proyOf(pid);if(!p)return;S.openProj=null;regFiles=[];
+  const att=tipo==="asistencia";
+  const people=[...(p.equipo||[])];const pres={};people.forEach(n=>pres[n]=true);
+  const quien=[...new Set([p.responsable,...people,...todasPersonas()].filter(Boolean))];
+  const dlg=document.getElementById("dlg");
+  dlg.innerHTML=`<div class="dlg-head"><div style="flex:1"><h3>${att?"Registro de asistencia":"Evidencia de avance"}</h3><div class="sub">${esc(p.nombre)}</div></div><button class="close" data-close aria-label="Cerrar">×</button></div>
+  <div class="dlg-body"><div class="grid2">
+    <div class="fl"><label for="g_fe">Fecha</label><input class="field" type="date" id="g_fe" value="${hoy()}"></div>
+    <div class="fl"><label for="g_po">Registrado por</label><select class="field" id="g_po">${(quien.length?quien:[""]).map(n=>`<option value="${esc(n)}">${esc(n||"Sin nombre")}</option>`).join("")}</select></div>
+    ${att?`<div class="fl full"><label for="g_ac">Actividad o jornada <span class="muted">(opcional)</span></label><input class="field" id="g_ac" maxlength="120" placeholder="Ej.: Charla de inicio, turno noche, faena de buceo"></div>
+    <div class="fl full"><label>Asistentes <span class="muted" id="g_cnt"></span></label><div class="att-list" id="g_att"></div>
+      <div class="op-row" style="margin-top:8px"><input class="field" id="g_new" placeholder="Agregar asistente no incluido en el equipo" maxlength="80"><button type="button" class="btn" id="g_add">Agregar</button></div></div>`
+    :`<div class="fl full"><label for="g_av">Avance del proyecto <span class="muted">(opcional, se usa si el proyecto no tiene tareas)</span></label>
+      <div class="range-row"><input type="range" id="g_av" min="0" max="100" step="5" value="${pStats(p).avTot}"><output id="g_out">${pStats(p).avTot}%</output></div>
+      <label class="muted" style="font-size:13px;display:flex;gap:6px;align-items:center;margin-top:4px"><input type="checkbox" id="g_avon"> Informar este porcentaje</label></div>`}
+    <div class="fl full"><label for="g_co">${att?"Observaciones":"Descripción del avance"}</label><textarea class="field" id="g_co" placeholder="${att?"Atrasos, reemplazos, permisos…":"Qué se hizo, qué falta, problemas encontrados"}"></textarea></div>
+    <div class="fl full"><label class="photo-drop" for="g_fi">${ico("cam")} ${att?"Adjuntar hoja de asistencia firmada (foto o PDF)":"Adjuntar fotos o PDF de evidencia"}</label><input type="file" id="g_fi" accept="image/*,application/pdf" multiple class="sr">
+      <div class="thumbs" id="g_th"></div><p class="hint">Hasta 8 archivos. Los PDF deben pesar menos de 650 KB; si pesan más, adjunta una foto.</p></div>
+  </div>
+  <p class="hint" id="g_err" role="alert"></p>
+  <div class="dlg-actions"><button class="btn" data-close>Cancelar</button><button class="btn primary" data-gsave>Guardar registro</button></div></div>`;
+  const back=()=>{regFiles.forEach(f=>f.url&&URL.revokeObjectURL(f.url));regFiles=[];openProj(pid)};
+  dlg.querySelectorAll("[data-close]").forEach(b=>b.onclick=back);
+  if(att){
+    const draw=()=>{const box=dlg.querySelector("#g_att");
+      box.innerHTML=people.length?people.map((n,i)=>`<label class="att${pres[n]?"":" off"}"><input type="checkbox" data-pi="${i}"${pres[n]?" checked":""}><span>${esc(n)}</span><small>${pres[n]?"Presente":"Ausente"}</small></label>`).join(""):`<span class="muted">El proyecto no tiene equipo definido. Agrega asistentes aquí abajo.</span>`;
+      box.querySelectorAll("[data-pi]").forEach(c=>c.onchange=()=>{pres[people[+c.dataset.pi]]=c.checked;draw()});
+      dlg.querySelector("#g_cnt").textContent=`(${people.filter(n=>pres[n]).length} de ${people.length} presentes)`;};
+    draw();
+    const add=()=>{const i=dlg.querySelector("#g_new");const n=i.value.trim();if(!n)return;if(!people.includes(n)){people.push(n);pres[n]=true}i.value="";draw();i.focus()};
+    dlg.querySelector("#g_add").onclick=add;dlg.querySelector("#g_new").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();add()}};
+  }else{
+    const r=dlg.querySelector("#g_av"),o=dlg.querySelector("#g_out"),on=dlg.querySelector("#g_avon");
+    r.oninput=()=>{o.textContent=r.value+"%";on.checked=true};
+  }
+  const th=dlg.querySelector("#g_th");
+  const drawFiles=()=>{th.innerHTML=regFiles.map((f,i)=>f.kind==="pdf"?`<span class="file-chip">📄 ${esc(f.file.name)} <button type="button" data-frm="${i}" aria-label="Quitar ${esc(f.file.name)}">×</button></span>`:`<div class="thumb"><img src="${f.url}" alt="Archivo ${i+1}"><button type="button" data-frm="${i}" aria-label="Quitar archivo ${i+1}">×</button></div>`).join("");
+    th.querySelectorAll("[data-frm]").forEach(b=>b.onclick=()=>{const f=regFiles[+b.dataset.frm];if(f.url)URL.revokeObjectURL(f.url);regFiles.splice(+b.dataset.frm,1);drawFiles()})};
+  dlg.querySelector("#g_fi").onchange=e=>{for(const f of e.target.files){if(regFiles.length>=8){toast("Máximo 8 archivos por registro",true);break}
+      if(f.type==="application/pdf"){if(f.size>650*1024){toast("“"+f.name+"” supera 650 KB. Adjunta una foto en su lugar.",true);continue}regFiles.push({file:f,kind:"pdf"})}
+      else if(f.type.startsWith("image/"))regFiles.push({file:f,kind:"img",url:URL.createObjectURL(f)})}
+    e.target.value="";drawFiles()};
+  dlg.querySelector("[data-gsave]").onclick=async ev=>{
+    const err=dlg.querySelector("#g_err"),g=i=>dlg.querySelector(i).value,com=g("#g_co").trim();
+    if(!g("#g_fe")){err.textContent="Indica la fecha.";return}
+    if(att&&!people.length){err.textContent="Agrega al menos un asistente.";return}
+    if(!att&&!com&&!regFiles.length){err.textContent="Escribe una descripción o adjunta al menos un archivo.";return}
+    const reg={id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),proyecto:pid,tipo:tipo,fecha:g("#g_fe"),por:g("#g_po")||"",comentario:com};
+    if(att){reg.asistentes=people.map(n=>({nombre:n,presente:!!pres[n]}));const ac=g("#g_ac").trim();if(ac)reg.actividad=ac}
+    else if(dlg.querySelector("#g_avon").checked)reg.avance=+g("#g_av");
+    ev.target.disabled=true;ev.target.textContent=regFiles.length?"Subiendo archivos…":"Guardando…";err.textContent="";
+    try{await saveRegistro(reg,regFiles);toast(att?"Asistencia registrada":"Evidencia guardada");S.regF="";back()}
+    catch(e){err.textContent=e.message||"No se pudo guardar.";ev.target.disabled=false;ev.target.textContent="Guardar registro"}
+  };
+  if(!dlg.open)dlg.showModal();
+}
+
+/* --- Datos de proyectos y registros --- */
+function readDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error("No se pudo leer "+file.name));r.readAsDataURL(file)})}
+async function guardarArchivo(ownerId,f){
+  const data=f.kind==="pdf"?await readDataURL(f.file):"data:image/jpeg;base64,"+await toB64(f.file);
+  if(DEMO){const id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);try{localStorage.setItem("htp_demo_foto_"+id,data)}catch(e){throw new Error("El almacenamiento de este navegador está lleno.")}return id}
+  const r=await fdb.collection("fotos").add({tarea:ownerId,data:data,creado:new Date().toISOString(),usuario:S.email||""});return r.id;
+}
+async function saveRegistro(reg,files){
+  const now=new Date().toISOString();reg.creado=now;reg.usuario=S.email||"";reg.fotos=[];
+  try{
+    for(const f of files){const id=await guardarArchivo(reg.proyecto,f);reg.fotos.push({id:id,tipo:f.kind,nombre:f.kind==="pdf"?f.file.name:""})}
+    if(DEMO){const d=demoDB();d.registros.push(reg);demoSave(d)}
+    else await fdb.collection("registros").doc(reg.id).set(stripId(reg));
+  }catch(e){throw new Error(e.code?fbErr(e):e.message)}
+  const i=S.registros.findIndex(x=>x.id===reg.id);if(i>=0)S.registros[i]=reg;else S.registros.push(reg);
+  render();
+}
+async function deleteRegistro(id){
+  const r=S.registros.find(x=>x.id===id);if(!r)return;
+  const ids=(r.fotos||[]).map(f=>typeof f==="string"?f:f.id);
+  if(DEMO){const d=demoDB();d.registros=d.registros.filter(x=>x.id!==id);demoSave(d);ids.forEach(f=>{try{localStorage.removeItem("htp_demo_foto_"+f)}catch(e){}})}
+  else{try{const b=fdb.batch();ids.forEach(f=>b.delete(fdb.collection("fotos").doc(f)));b.delete(fdb.collection("registros").doc(id));await b.commit()}catch(e){throw new Error(fbErr(e))}}
+  S.registros=S.registros.filter(x=>x.id!==id);render();
+}
+async function saveProj(n){
+  const now=new Date().toISOString();
+  const p=Object.assign({},proyOf(n.id)||{creado:now},n,{actualizado:now});
+  if(DEMO){const d=demoDB();const i=d.proyectos.findIndex(x=>x.id===p.id);if(i>=0)d.proyectos[i]=p;else d.proyectos.push(p);demoSave(d)}
+  else{try{await fdb.collection("proyectos").doc(p.id).set(stripId(p))}catch(e){throw new Error(fbErr(e))}}
+  const i=S.proyectos.findIndex(x=>x.id===p.id);if(i>=0)S.proyectos[i]=p;else S.proyectos.push(p);render();
+}
+async function deleteProj(id){
+  const ts=tareasDe(id),rs=S.registros.filter(r=>r.proyecto===id);
+  if(DEMO){const d=demoDB();d.proyectos=d.proyectos.filter(x=>x.id!==id);d.registros=d.registros.filter(r=>r.proyecto!==id);d.tareas.forEach(t=>{if(t.proyecto===id)t.proyecto=""});demoSave(d)}
+  else{try{
+    const ops=[];ts.forEach(t=>ops.push(b=>b.update(fdb.collection("tareas").doc(t.id),{proyecto:""})));
+    rs.forEach(r=>{(r.fotos||[]).forEach(f=>{const fid=typeof f==="string"?f:f.id;ops.push(b=>b.delete(fdb.collection("fotos").doc(fid)))});ops.push(b=>b.delete(fdb.collection("registros").doc(r.id)))});
+    ops.push(b=>b.delete(fdb.collection("proyectos").doc(id)));
+    for(let i=0;i<ops.length;i+=450){const b=fdb.batch();ops.slice(i,i+450).forEach(f=>f(b));await b.commit()}
+  }catch(e){throw new Error(fbErr(e))}}
+  S.proyectos=S.proyectos.filter(x=>x.id!==id);S.registros=S.registros.filter(r=>r.proyecto!==id);S.tareas.forEach(t=>{if(t.proyecto===id)t.proyecto=""});render();
+}
+
 /* ---------- Planilla ---------- */
 function filtered(){
   const q=S.f.q.trim().toLowerCase();
-  let l=S.tareas.filter(t=>(!S.f.turno||t.turno===S.f.turno)&&(!S.f.estado||t.estado===S.f.estado)&&(!S.f.soloVencidas||vencida(t))&&(!q||[t.titulo,t.descripcion,t.responsable,t.ultimoComentario].join(" ").toLowerCase().includes(q)));
+  let l=S.tareas.filter(t=>(!S.f.turno||t.turno===S.f.turno)&&(!S.f.proyecto||(S.f.proyecto==="__none"?!(t.proyecto&&proyOf(t.proyecto)):t.proyecto===S.f.proyecto))&&(!S.f.estado||t.estado===S.f.estado)&&(!S.f.soloVencidas||vencida(t))&&(!q||[t.titulo,t.descripcion,t.responsable,t.ultimoComentario].join(" ").toLowerCase().includes(q)));
   const k=S.sort.k,d=S.sort.dir,F=folios();
   l.sort((a,b)=>{let x=a[k],y=b[k];if(k==="folio"){x=F[a.id];y=F[b.id]}if(k==="avance"){x=+x||0;y=+y||0}if(x==null)x="";if(y==null)y="";return (x>y?1:x<y?-1:0)*d});
   return l;
@@ -550,6 +833,7 @@ function viewList(){
   <div class="actions">${S.canEdit?`<button class="btn primary desk-only" data-act="new">${ico("plus")}Nueva tarea</button>`:""}<button class="btn" data-act="xlsx">${ico("down")}Descargar Excel</button></div></div>
   <div class="filters">
     <label class="sr" for="fq">Buscar</label><input id="fq" type="search" placeholder="Buscar por tarea, responsable o comentario" value="${esc(S.f.q)}">
+    ${S.proyectos.length?`<label class="sr" for="fp">Proyecto</label><select id="fp"><option value="">Todos los proyectos</option><option value="__none"${S.f.proyecto==="__none"?" selected":""}>Sin proyecto</option>${S.proyectos.map(p=>`<option value="${esc(p.id)}"${S.f.proyecto===p.id?" selected":""}>${esc(p.nombre)}</option>`).join("")}</select>`:""}
     <label class="sr" for="ft">Turno</label><select id="ft"><option value="">Todos los turnos</option>${cfg.turnos.map(t=>`<option value="${esc(t.id)}"${S.f.turno===t.id?" selected":""}>${esc(t.nombre)}</option>`).join("")}</select>
   </div>
   <div class="chips" role="group" aria-label="Filtrar por estado">
@@ -564,7 +848,7 @@ function viewList(){
   l.forEach(t=>{const nf=(t.historial||[]).reduce((n,x)=>n+(x.fotos?x.fotos.length:0),0);
     h+=`<tr data-open="${esc(t.id)}" tabindex="0">
       <td class="num">${F[t.id]}</td>
-      <td><div class="t-title">${esc(t.titulo)}</div>${t.descripcion?`<div class="t-desc">${esc(t.descripcion)}</div>`:""}</td>
+      <td><div class="t-title">${esc(t.titulo)}</div>${t.proyecto&&proyOf(t.proyecto)?`<div class="t-proj">${esc(proyOf(t.proyecto).nombre)}</div>`:""}${t.descripcion?`<div class="t-desc">${esc(t.descripcion)}</div>`:""}</td>
       <td><span class="tag">${esc(t.turno)}</span></td>
       <td>${esc(t.responsable||"—")}</td>
       <td><span class="prio ${esc(t.prioridad)}">${esc(t.prioridad||"")}</span></td>
@@ -579,6 +863,7 @@ function viewList(){
   h+=`<div class="m-list cards">${l.length?l.map(t=>`<article class="card tap${vencida(t)?" late":""}" data-open="${esc(t.id)}" tabindex="0" role="button">
     <div class="ttl-row"><span class="tag">${esc(t.turno)}</span><h4>${esc(t.titulo)}</h4><span class="num">N° ${F[t.id]}</span></div>
     <div class="row">${pill(t)}<span class="prio ${esc(t.prioridad)}">${esc(t.prioridad||"")}</span></div>
+    ${t.proyecto&&proyOf(t.proyecto)?`<div class="t-proj">${esc(proyOf(t.proyecto).nombre)}</div>`:""}
     <div class="meta"><span>${esc(t.responsable||"Sin responsable")}</span><span>Compromiso <b${vencida(t)?' style="color:var(--late)"':""}>${fmtD(t.fechaCompromiso)}</b></span></div>
     <div>${bar(t.avance)}</div>
     ${t.ultimoComentario?`<div class="muted">“${esc(t.ultimoComentario)}”</div>`:""}
@@ -599,6 +884,7 @@ function viewMine(){
   h+=`<div class="cards">`+open.map(t=>`<article class="card${vencida(t)?" late":""}">
     <div class="row">${pill(t)}<span class="prio ${esc(t.prioridad)}">${esc(t.prioridad||"")}</span></div>
     <h4>${esc(t.titulo)}</h4>
+    ${t.proyecto&&proyOf(t.proyecto)?`<div class="t-proj">${esc(proyOf(t.proyecto).nombre)}</div>`:""}
     <div class="meta"><span>Responsable: ${esc(t.responsable||"—")}</span><span>Compromiso: <b${vencida(t)?' style="color:var(--late)"':""}>${fmtD(t.fechaCompromiso)}</b></span></div>
     <div>${bar(t.avance)}</div>
     ${t.ultimoComentario?`<div class="muted">“${esc(t.ultimoComentario)}”</div>`:""}
@@ -666,12 +952,15 @@ function bindView(m){
     if(el.tagName==="TR"||el.tagName==="ARTICLE")el.addEventListener("keydown",e=>{if(e.key==="Enter")openDetail(el.dataset.open)});
   });
   m.querySelectorAll("[data-act=new]").forEach(b=>b.onclick=()=>openForm(null));
+  m.querySelectorAll("[data-act=newproj]").forEach(b=>b.onclick=()=>openProjForm(null));
+  m.querySelectorAll("[data-proj]").forEach(el=>{el.addEventListener("click",()=>openProj(el.dataset.proj));el.addEventListener("keydown",e=>{if(e.key==="Enter")openProj(el.dataset.proj)})});
   m.querySelectorAll("[data-act=xlsx]").forEach(b=>b.onclick=exportXlsx);
   m.querySelectorAll("[data-goturno]").forEach(b=>b.onclick=()=>{S.f={q:"",turno:b.dataset.goturno,estado:"",soloVencidas:false};S.view="list";render()});
   const fq=m.querySelector("#fq");
   if(fq){
     fq.oninput=()=>{S.f.q=fq.value;const pos=fq.selectionStart;render();const n=document.getElementById("fq");n.focus();n.setSelectionRange(pos,pos)};
     m.querySelector("#ft").onchange=e=>{S.f.turno=e.target.value;render()};
+    const fp=m.querySelector("#fp");if(fp)fp.onchange=e=>{S.f.proyecto=e.target.value;render()};
     m.querySelectorAll("[data-chip]").forEach(c=>c.onclick=()=>{const v=c.dataset.chip;if(v==="__late"){S.f.soloVencidas=!S.f.soloVencidas;S.f.estado=""}else{S.f.estado=v;S.f.soloVencidas=false}render()});
     m.querySelectorAll("th[data-sort]").forEach(th=>th.onclick=()=>{const k=th.dataset.sort;if(S.sort.k===k)S.sort.dir*=-1;else S.sort={k,dir:1};render()});
   }
@@ -687,15 +976,17 @@ function bindView(m){
 }
 
 /* ---------- Formulario de tarea ---------- */
-function openForm(id){
+function openForm(id,preset){
   const t=id?S.tareas.find(x=>x.id===id):null;const cfg=S.cfg||DEFAULT_CFG;
-  const d=t||{titulo:"",descripcion:"",turno:cfg.turnos[0].id,responsable:"",prioridad:"Media",fechaInicio:hoy(),fechaCompromiso:addDays(hoy(),7),estado:"Pendiente",avance:0};
-  const dlg=document.getElementById("dlg");S.openId=null;
+  const d=t||{titulo:"",descripcion:"",turno:cfg.turnos[0].id,responsable:"",prioridad:"Media",fechaInicio:hoy(),fechaCompromiso:addDays(hoy(),7),estado:"Pendiente",avance:0,proyecto:""};
+  if(!t&&preset)Object.assign(d,preset);
+  const dlg=document.getElementById("dlg");S.openId=null;S.openProj=null;
   const respOpts=tid=>{const p=personas(tid);const tr=turnoOf(tid);return `<option value="">Sin asignar</option>`+p.map(n=>`<option${d.responsable===n?" selected":""}>${esc(n)}</option>`).join("")+(d.responsable&&!p.includes(d.responsable)?`<option selected>${esc(d.responsable)}</option>`:"")};
   dlg.innerHTML=`<div class="dlg-head"><div style="flex:1"><h3>${t?"Editar tarea":"Nueva tarea"}</h3><div class="sub">${t?"Los cambios quedan visibles para todos los turnos.":"Asigna la tarea a un turno y define el compromiso de cierre."}</div></div><button class="close" data-close aria-label="Cerrar">×</button></div>
   <div class="dlg-body"><div class="grid2">
     <div class="fl full"><label for="f_ti">Tarea</label><input class="field" id="f_ti" required maxlength="140" value="${esc(d.titulo)}" placeholder="Ej.: Cambio de rodillos correa CT-3"></div>
     <div class="fl full"><label for="f_de">Descripción</label><textarea class="field" id="f_de" placeholder="Alcance, ubicación, recursos o criterios de cierre">${esc(d.descripcion)}</textarea></div>
+    <div class="fl full"><label for="f_pj">Proyecto</label><select class="field" id="f_pj"><option value="">Sin proyecto</option>${S.proyectos.filter(p=>p.estado!=="Cerrado"||p.id===d.proyecto).map(p=>`<option value="${esc(p.id)}"${d.proyecto===p.id?" selected":""}>${esc(p.nombre)}</option>`).join("")}</select></div>
     <div class="fl"><label for="f_tu">Turno</label><select class="field" id="f_tu">${cfg.turnos.map(x=>`<option value="${esc(x.id)}"${d.turno===x.id?" selected":""}>${esc(x.nombre)}${x.jefe?" ("+esc(x.jefe)+")":""}</option>`).join("")}</select></div>
     <div class="fl"><label for="f_re">Responsable</label><select class="field" id="f_re">${respOpts(d.turno)}</select></div>
     <div class="fl"><label for="f_fi">Fecha de inicio</label><input class="field" type="date" id="f_fi" value="${esc(d.fechaInicio)}"></div>
@@ -716,7 +1007,7 @@ function openForm(id){
     if(!g("#f_fc")){err.textContent="Indica la fecha de cierre comprometida.";return}
     if(g("#f_fi")&&g("#f_fc")<g("#f_fi")){err.textContent="La fecha de compromiso no puede ser anterior al inicio.";return}
     const n=t?JSON.parse(JSON.stringify(t)):{id:newId(),creado:new Date().toISOString(),estado:"Pendiente",avance:0,historial:[],ultimoComentario:"",fechaCierre:""};
-    n.titulo=g("#f_ti").trim();n.descripcion=g("#f_de").trim();n.turno=g("#f_tu");n.responsable=g("#f_re");n.fechaInicio=g("#f_fi");n.fechaCompromiso=g("#f_fc");n.prioridad=g("#f_pr");
+    n.titulo=g("#f_ti").trim();n.descripcion=g("#f_de").trim();n.turno=g("#f_tu");n.responsable=g("#f_re");n.fechaInicio=g("#f_fi");n.fechaCompromiso=g("#f_fc");n.prioridad=g("#f_pr");n.proyecto=g("#f_pj");
     if(t){const ne=g("#f_es");if(ne!==n.estado){n.estado=ne;if(ne==="Completada"){n.avance=100;n.fechaCierre=n.fechaCierre||hoy()}else n.fechaCierre=""}}
     ev.target.disabled=true;
     try{await saveTask(n);dlg.close();toast(t?"Cambios guardados":"Tarea creada");if(!t)S.openId=null}catch(e){err.textContent=e.message||"No se pudo guardar.";ev.target.disabled=false}
@@ -727,7 +1018,7 @@ function openForm(id){
 
 /* ---------- Detalle + reporte de avance ---------- */
 let pending=[];// fotos por subir {file,url}
-function openDetail(id,focus){S.openId=id;pending=[];const dlg=document.getElementById("dlg");buildDetail();if(!dlg.open)dlg.showModal();if(focus==="report")setTimeout(()=>{const r=dlg.querySelector("#r_av");if(r)r.focus()},40)}
+function openDetail(id,focus){S.openId=id;S.openProj=null;pending=[];const dlg=document.getElementById("dlg");buildDetail();if(!dlg.open)dlg.showModal();if(focus==="report")setTimeout(()=>{const r=dlg.querySelector("#r_av");if(r)r.focus()},40)}
 function refreshDetail(){
   // Mantiene lo que el usuario está escribiendo si llega un cambio de otro usuario
   const dlg=document.getElementById("dlg");if(!dlg.querySelector("[data-detail]"))return;
@@ -748,6 +1039,7 @@ function buildDetail(keep){
       <div>Estado<b>${pill(t)}</b></div>
       <div>Avance<b>${bar(t.avance)}</b></div>
       <div>Responsable<b>${esc(t.responsable||"Sin asignar")}</b></div>
+      ${t.proyecto&&proyOf(t.proyecto)?`<div>Proyecto<b><button class="linkbtn" data-goproj="${esc(t.proyecto)}" style="font-size:14px">${esc(proyOf(t.proyecto).nombre)}</button></b></div>`:""}
       <div>Prioridad<b>${esc(t.prioridad||"—")}</b></div>
       <div>Inicio<b>${fmtD(t.fechaInicio)}</b></div>
       <div>Compromiso<b style="${vencida(t)?"color:var(--late)":""}">${fmtD(t.fechaCompromiso)}${t.estado!=="Completada"&&diasRest!=null?` <span class="muted">(${diasRest<0?Math.abs(diasRest)+" d de atraso":diasRest===0?"hoy":"quedan "+diasRest+" d"})</span>`:""}</b></div>
@@ -775,6 +1067,7 @@ function buildDetail(keep){
   </div>`;
   dlg.querySelector("[data-close]").onclick=()=>{dlg.close()};
   const eb=dlg.querySelector("[data-edit]");if(eb)eb.onclick=()=>openForm(t.id);
+  const gp=dlg.querySelector("[data-goproj]");if(gp)gp.onclick=()=>openProj(gp.dataset.goproj);
   hydratePhotos(dlg);
   dlg.querySelectorAll("img[data-zoom]").forEach(img=>img.onclick=()=>{if(!img.src)return;const v=document.getElementById("viewer");v.querySelector("img").src=img.src;v.classList.add("on")});
   if(!S.canWrite)return;
@@ -808,23 +1101,29 @@ function loadScript(src){return new Promise((res,rej)=>{if(window.XLSX)return re
 async function exportXlsx(){
   try{
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
-    const F=folios();const rows=[...S.tareas].sort((a,b)=>F[a.id]-F[b.id]).map(t=>({"N°":F[t.id],"Tarea":t.titulo,"Descripción":t.descripcion||"","Turno":turnoNombre(t.turno),"Jefe de turno":(turnoOf(t.turno)||{}).jefe||"","Responsable":t.responsable||"","Prioridad":t.prioridad||"","Fecha inicio":fmtD(t.fechaInicio),"Fecha compromiso":fmtD(t.fechaCompromiso),"Estado":t.estado,"Vencida":vencida(t)?"Sí":"No","Avance %":+t.avance||0,"Fecha cierre real":t.fechaCierre?fmtD(t.fechaCierre):"","Último comentario":t.ultimoComentario||"","N° reportes":(t.historial||[]).length}));
+    const F=folios();const rows=[...S.tareas].sort((a,b)=>F[a.id]-F[b.id]).map(t=>({"N°":F[t.id],"Tarea":t.titulo,"Descripción":t.descripcion||"","Proyecto":(proyOf(t.proyecto)||{}).nombre||"","Turno":turnoNombre(t.turno),"Jefe de turno":(turnoOf(t.turno)||{}).jefe||"","Responsable":t.responsable||"","Prioridad":t.prioridad||"","Fecha inicio":fmtD(t.fechaInicio),"Fecha compromiso":fmtD(t.fechaCompromiso),"Estado":t.estado,"Vencida":vencida(t)?"Sí":"No","Avance %":+t.avance||0,"Fecha cierre real":t.fechaCierre?fmtD(t.fechaCierre):"","Último comentario":t.ultimoComentario||"","N° reportes":(t.historial||[]).length}));
     const hist=[];S.tareas.forEach(t=>(t.historial||[]).forEach(h=>hist.push({"N° tarea":F[t.id],"Tarea":t.titulo,"Turno":turnoNombre(t.turno),"Fecha y hora":fmtDT(h.t),"Reportado por":h.por||"","Estado":h.estado,"Avance %":h.avance,"Comentario":h.comentario||"","Fotos":h.fotos?h.fotos.length:0})));
     const wb=XLSX.utils.book_new();
-    const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[6,40,40,12,22,22,10,14,16,12,9,10,16,50,11].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,"Tareas");
+    const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[6,40,40,26,12,22,22,10,14,16,12,9,10,16,50,11].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,"Tareas");
     const wh=XLSX.utils.json_to_sheet(hist.length?hist:[{"N° tarea":"","Tarea":"Sin reportes"}]);wh["!cols"]=[9,40,12,18,22,12,10,60,7].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,wh,"Historial");
+    if(S.proyectos.length){const wp=XLSX.utils.json_to_sheet(S.proyectos.map(p=>{const s=pStats(p);return {"Proyecto":p.nombre,"Descripción":p.descripcion||"","Responsable":p.responsable||"","Estado":p.estado,"Equipo":(p.equipo||[]).join(", "),"Fecha de ejecución":fmtD(p.fechaInicio),"Fecha de cierre":fmtD(p.fechaTermino),"Atrasado":pLate(p)?"Sí":"No","Avance %":s.avTot,"Tareas":s.total,"Completadas":s.ok,"Vencidas":s.late}}));wp["!cols"]=[34,40,22,14,40,16,14,9,9,8,11,9].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,wp,"Proyectos")}
+    const pn=id=>(proyOf(id)||{}).nombre||"";
+    const asis=[];S.registros.filter(r=>r.tipo==="asistencia").forEach(r=>(r.asistentes||[]).forEach(a=>asis.push({"Fecha":fmtD(r.fecha),"Proyecto":pn(r.proyecto),"Actividad":r.actividad||"","Persona":a.nombre,"Asistencia":a.presente?"Presente":"Ausente","Registrado por":r.por||"","Observaciones":r.comentario||"","Archivos":(r.fotos||[]).length})));
+    if(asis.length){const wa=XLSX.utils.json_to_sheet(asis);wa["!cols"]=[12,34,26,26,11,22,40,9].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,wa,"Asistencia")}
+    const evs=S.registros.filter(r=>r.tipo==="evidencia").map(r=>({"Fecha":fmtD(r.fecha),"Proyecto":pn(r.proyecto),"Avance informado %":r.avance!=null&&r.avance!==""?+r.avance:"","Descripción":r.comentario||"","Registrado por":r.por||"","Archivos":(r.fotos||[]).length}));
+    if(evs.length){const we=XLSX.utils.json_to_sheet(evs);we["!cols"]=[12,34,12,60,22,9].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,we,"Evidencias")}
     XLSX.writeFile(wb,"Seguimiento_tareas_turnos_"+hoy()+".xlsx");
   }catch(e){toast("No se pudo generar el Excel.",true)}
 }
 
 /* ---------- Iconos ---------- */
-function ico(n){const p={plus:'<path d="M12 5v14M5 12h14"/>',down:'<path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/>',cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'}[n];return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`}
+function ico(n){const p={plus:'<path d="M12 5v14M5 12h14"/>',down:'<path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/>',check:'<path d="M5 12.5l4.5 4.5L19 7"/>',cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'}[n];return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`}
 
 /* ---------- Navegación y arranque ---------- */
 document.querySelectorAll(".nav-i").forEach(b=>b.onclick=()=>{if(S.view===b.dataset.view){window.scrollTo({top:0,behavior:"smooth"});return}S.view=b.dataset.view;if(S.view==="team")draftCfg=null;render();window.scrollTo(0,0)});
-document.getElementById("fab").onclick=()=>openForm(null);
+document.getElementById("fab").onclick=()=>S.view==="proj"?openProjForm(null):openForm(null);
 document.getElementById("viewer").onclick=e=>e.currentTarget.classList.remove("on");
-document.getElementById("dlg").addEventListener("close",()=>{S.openId=null;pending.forEach(p=>URL.revokeObjectURL(p.url));pending=[]});
+document.getElementById("dlg").addEventListener("close",()=>{S.openId=null;S.openProj=null;pending.forEach(p=>URL.revokeObjectURL(p.url));pending=[]});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("viewer").classList.remove("on")});
 
 function setConn(ok,txt){const c=document.getElementById("conn");c.className="conn"+(ok?" ok":"");c.querySelector("span").textContent=txt}
@@ -839,19 +1138,21 @@ function softRender(){
 function addScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("No se pudo cargar Firebase. Revisa tu conexión."));document.head.appendChild(s)})}
 function startData(){
   unsubs.forEach(u=>u());unsubs=[];
-  let a=false,b=false;
+  let a=false,b=false,c=false,e4=false;
   const fail=e=>{S.loaded=false;S.loadErr=(e&&e.code==="permission-denied")?"Tu correo ("+S.email+") no está habilitado. Pide al jefe de operaciones que lo registre en la sección Equipo.":fbErr(e);setConn(false,"Sin acceso");render()};
   const done=()=>{
-    if(!(a&&b))return;
+    if(!(a&&b&&c&&e4))return;
     const first=!S.loaded;S.loaded=true;S.loadErr="";setConn(true,"En línea");
     if(first&&!S.canEdit&&S.cfg){const tr=(S.cfg.turnos||[]).find(t=>t.correo===S.email);if(tr){S.miTurno=tr.id;lsSet("htp_mi_turno",tr.id);S.view="mine"}}
     if(first)render();else softRender();
   };
   unsubs.push(fdb.doc("config/equipo").onSnapshot(s=>{S.cfg=s.exists?s.data():DEFAULT_CFG;a=true;done()},fail));
+  unsubs.push(fdb.collection("registros").onSnapshot(s=>{S.registros=s.docs.map(d=>Object.assign({id:d.id},d.data()));e4=true;done()},e=>{S.registros=[];S.projErr=true;e4=true;done()}));
+  unsubs.push(fdb.collection("proyectos").onSnapshot(s=>{S.proyectos=s.docs.map(d=>Object.assign({id:d.id},d.data()));S.projErr=false;c=true;done()},e=>{S.proyectos=[];S.projErr=true;c=true;done()}));
   unsubs.push(fdb.collection("tareas").onSnapshot(s=>{S.tareas=s.docs.map(d=>Object.assign({id:d.id},d.data()));b=true;done()},fail));
 }
 (async function init(){
-  if(DEMO){const d=demoDB();S.cfg=d.cfg||DEFAULT_CFG;S.tareas=d.tareas;S.loaded=true;setConn(false,"Demostración");render();return}
+  if(DEMO){const d=demoDB();S.cfg=d.cfg||DEFAULT_CFG;S.tareas=d.tareas;S.proyectos=d.proyectos||[];S.registros=d.registros||[];S.loaded=true;setConn(false,"Demostración");render();return}
   render();
   const FB="https://www.gstatic.com/firebasejs/10.12.2/";
   try{await addScript(FB+"firebase-app-compat.js");await addScript(FB+"firebase-auth-compat.js");await addScript(FB+"firebase-firestore-compat.js")}
@@ -861,7 +1162,7 @@ function startData(){
   const admins=ADMIN_EMAILS.map(x=>String(x).trim().toLowerCase());
   fauth.onAuthStateChanged(u=>{
     unsubs.forEach(x=>x());unsubs=[];
-    if(!u){S.needLogin=true;S.email="";S.rol="";S.canEdit=false;S.loaded=false;S.loadErr="";S.tareas=[];S.view="dash";const d=document.getElementById("dlg");if(d.open)d.close();render();return}
+    if(!u){S.needLogin=true;S.email="";S.rol="";S.canEdit=false;S.loaded=false;S.loadErr="";S.tareas=[];S.proyectos=[];S.registros=[];S.view="dash";const d=document.getElementById("dlg");if(d.open)d.close();render();return}
     S.needLogin=false;S.email=(u.email||"").toLowerCase();S.canEdit=admins.indexOf(S.email)>=0;S.rol=S.canEdit?"admin":"turno";
     S.loaded=false;S.loadErr="";render();startData();
   });
