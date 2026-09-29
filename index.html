@@ -86,7 +86,7 @@ button.conn{background:none;border:0;cursor:pointer;padding:6px 4px}
 .chip i{width:8px;height:8px;border-radius:50%}
 .chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
 .chip em{font-style:normal;opacity:.75;font-weight:500}
-.m-list{display:none}
+.m-list,.m-list.cards{display:none}
 .facts .pill{white-space:normal}
 @media (max-width:640px){main .filters input{flex:1 1 100%}main .filters select{flex:1 1 40%;min-width:0}}
 .p-actions{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}
@@ -286,7 +286,7 @@ textarea.field{min-height:78px;resize:vertical}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}dialog[open]{animation:none}}
 .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 @media (min-width:900px){.toast{bottom:24px}}
-@media (max-width:760px){.tbl-wrap{display:none}.m-list{display:grid}}
+@media (max-width:760px){.tbl-wrap{display:none}.m-list,.m-list.cards{display:grid}}
 @media (max-width:640px){
   main{padding:16px 12px calc(110px + env(safe-area-inset-bottom,0px))}
   .kpis{grid-template-columns:1fr 1fr;gap:10px}
@@ -303,6 +303,7 @@ textarea.field{min-height:78px;resize:vertical}
   .kpi b{font-size:28px}
   .sec-head h2{font-size:19px}
 }
+.mine-sec{margin:22px 0 10px;font-size:16px}.mine-proj{margin:14px 0 8px;font-weight:700}.mine-proj .linkbtn{font-size:15px}
 </style>
 </head>
 <body>
@@ -528,14 +529,14 @@ function stackBar(s){
   return `<div class="stack" role="img" aria-label="${ESTADOS.map(e=>e+": "+s.porEst[e]).join(", ")}">${ESTADOS.map(e=>s.porEst[e]?`<i style="width:${s.porEst[e]/s.total*100}%;background:${EST_COLOR[e]}"></i>`:"").join("")}</div>`;
 }
 function viewDash(){
-  const all=S.tareas, st=stats(all), cfg=S.cfg||DEFAULT_CFG, F=folios(), today=hoy(), in7=addDays(today,7);
+  const all=sueltas(), st=stats(all), cfg=S.cfg||DEFAULT_CFG, F=folios(), today=hoy(), in7=addDays(today,7);
   const prox=all.filter(t=>t.estado!=="Completada"&&t.fechaCompromiso>=today&&t.fechaCompromiso<=in7).sort((a,b)=>a.fechaCompromiso.localeCompare(b.fechaCompromiso));
   const lates=all.filter(vencida).sort((a,b)=>a.fechaCompromiso.localeCompare(b.fechaCompromiso));
   const recientes=all.filter(t=>t.historial&&t.historial.length).map(t=>({t,h:t.historial[t.historial.length-1]})).sort((a,b)=>(b.h.t||"").localeCompare(a.h.t||"")).slice(0,6);
-  let h=`<div class="sec-head"><div><h2>Estado general</h2><p>Actualizado al ${fmtD(today)}. Toca un turno o una tarea para ver el detalle.</p></div>
+  let h=`<div class="sec-head"><div><h2>Estado general</h2><p>Actualizado al ${fmtD(today)}. Las cifras corresponden a tareas; los proyectos se ven en su propio panel.</p></div>
   <div class="actions">${S.canEdit?`<button class="btn primary desk-only" data-act="new">${ico("plus")}Nueva tarea</button>`:""}<button class="btn" data-act="xlsx">${ico("down")}Descargar Excel</button></div></div>`;
   h+=`<div class="kpis">
-    <div class="kpi"><b>${st.act}</b><span>Tareas abiertas</span><small>${st.total} registradas en total</small></div>
+    <div class="kpi"><b>${st.act}</b><span>Tareas abiertas</span><small>${st.total} tareas registradas</small></div>
     <div class="kpi"><b>${st.avg}%</b><span>Avance promedio</span><small>de las tareas abiertas</small></div>
     <div class="kpi late"><b>${st.late}</b><span>Vencidas</span><small>compromiso ya pasó sin cierre</small></div>
     <div class="kpi"><b>${st.ok}</b><span>Completadas</span><small>${st.cumpl==null?"sin cierres aún":st.cumpl+"% cerradas a tiempo"}</small></div>
@@ -567,6 +568,8 @@ function viewDash(){
 const P_ESTADOS=["Planificado","En ejecución","Detenido","Cerrado"];
 const P_COLOR={"Planificado":"var(--st-pend)","En ejecución":"var(--st-proc)","Detenido":"var(--st-det)","Cerrado":"var(--st-ok)"};
 function proyOf(id){return id?S.proyectos.find(p=>p.id===id):null}
+function sueltas(){return S.tareas.filter(t=>!(t.proyecto&&proyOf(t.proyecto)))}
+function deProyectos(){return S.tareas.filter(t=>t.proyecto&&proyOf(t.proyecto))}
 function tareasDe(pid){return S.tareas.filter(t=>t.proyecto===pid)}
 function regsDe(pid){return S.registros.filter(r=>r.proyecto===pid).sort((a,b)=>((b.fecha||"")+(b.creado||"")).localeCompare((a.fecha||"")+(a.creado||"")))}
 function pStats(p){
@@ -821,34 +824,33 @@ async function deleteProj(id){
 /* ---------- Planilla ---------- */
 function filtered(){
   const q=S.f.q.trim().toLowerCase();
-  let l=S.tareas.filter(t=>(!S.f.turno||t.turno===S.f.turno)&&(!S.f.proyecto||(S.f.proyecto==="__none"?!(t.proyecto&&proyOf(t.proyecto)):t.proyecto===S.f.proyecto))&&(!S.f.estado||t.estado===S.f.estado)&&(!S.f.soloVencidas||vencida(t))&&(!q||[t.titulo,t.descripcion,t.responsable,t.ultimoComentario].join(" ").toLowerCase().includes(q)));
+  let l=sueltas().filter(t=>(!S.f.turno||t.turno===S.f.turno)&&(!S.f.estado||t.estado===S.f.estado)&&(!S.f.soloVencidas||vencida(t))&&(!q||[t.titulo,t.descripcion,t.responsable,t.ultimoComentario].join(" ").toLowerCase().includes(q)));
   const k=S.sort.k,d=S.sort.dir,F=folios();
   l.sort((a,b)=>{let x=a[k],y=b[k];if(k==="folio"){x=F[a.id];y=F[b.id]}if(k==="avance"){x=+x||0;y=+y||0}if(x==null)x="";if(y==null)y="";return (x>y?1:x<y?-1:0)*d});
   return l;
 }
 function viewList(){
-  const l=filtered(),F=folios(),cfg=S.cfg||DEFAULT_CFG;
+  const l=filtered(),F=folios(),cfg=S.cfg||DEFAULT_CFG,base=sueltas(),np=S.tareas.length-base.length;
   const th=(k,t)=>`<th data-sort="${k}" aria-sort="${S.sort.k===k?(S.sort.dir>0?"ascending":"descending"):"none"}">${t}</th>`;
-  let h=`<div class="sec-head"><div><h2>Planilla de tareas</h2><p>${l.length} de ${S.tareas.length} tareas.<span class="desk-only"> Ordena tocando el encabezado de cada columna.</span></p></div>
+  let h=`<div class="sec-head"><div><h2>Planilla de tareas</h2><p>${l.length} de ${base.length} tareas.${np?` ${np===1?"La tarea":"Las "+np+" tareas"} de proyectos ${np===1?"está":"están"} en <button class="linkbtn" data-goview="proj">Proyectos</button>.`:""}<span class="desk-only"> Ordena tocando el encabezado de cada columna.</span></p></div>
   <div class="actions">${S.canEdit?`<button class="btn primary desk-only" data-act="new">${ico("plus")}Nueva tarea</button>`:""}<button class="btn" data-act="xlsx">${ico("down")}Descargar Excel</button></div></div>
   <div class="filters">
     <label class="sr" for="fq">Buscar</label><input id="fq" type="search" placeholder="Buscar por tarea, responsable o comentario" value="${esc(S.f.q)}">
-    ${S.proyectos.length?`<label class="sr" for="fp">Proyecto</label><select id="fp"><option value="">Todos los proyectos</option><option value="__none"${S.f.proyecto==="__none"?" selected":""}>Sin proyecto</option>${S.proyectos.map(p=>`<option value="${esc(p.id)}"${S.f.proyecto===p.id?" selected":""}>${esc(p.nombre)}</option>`).join("")}</select>`:""}
     <label class="sr" for="ft">Turno</label><select id="ft"><option value="">Todos los turnos</option>${cfg.turnos.map(t=>`<option value="${esc(t.id)}"${S.f.turno===t.id?" selected":""}>${esc(t.nombre)}</option>`).join("")}</select>
   </div>
   <div class="chips" role="group" aria-label="Filtrar por estado">
     <button class="chip" data-chip="" aria-pressed="${!S.f.estado&&!S.f.soloVencidas}">Todas</button>
-    ${ESTADOS.map(e=>`<button class="chip" data-chip="${e}" aria-pressed="${S.f.estado===e}"><i style="background:${EST_COLOR[e]}"></i>${e} <em>${S.tareas.filter(t=>t.estado===e).length}</em></button>`).join("")}
-    <button class="chip" data-chip="__late" aria-pressed="${S.f.soloVencidas}"><i style="background:var(--late)"></i>Vencidas <em>${S.tareas.filter(vencida).length}</em></button>
+    ${ESTADOS.map(e=>`<button class="chip" data-chip="${e}" aria-pressed="${S.f.estado===e}"><i style="background:${EST_COLOR[e]}"></i>${e} <em>${base.filter(t=>t.estado===e).length}</em></button>`).join("")}
+    <button class="chip" data-chip="__late" aria-pressed="${S.f.soloVencidas}"><i style="background:var(--late)"></i>Vencidas <em>${base.filter(vencida).length}</em></button>
   </div>
   <div class="tbl-wrap"><table><thead><tr>
     ${th("folio","N°")}${th("titulo","Tarea")}${th("turno","Turno")}${th("responsable","Responsable")}${th("prioridad","Prioridad")}${th("fechaInicio","Inicio")}${th("fechaCompromiso","Compromiso")}${th("estado","Estado")}${th("avance","Avance")}${th("fechaCierre","Cierre real")}<th>Último comentario</th><th>Fotos</th>
   </tr></thead><tbody>`;
-  if(!l.length)h+=`<tr><td colspan="12" class="empty" style="padding:24px">${S.tareas.length?"Ninguna tarea coincide con los filtros.":"Aún no hay tareas cargadas."}</td></tr>`;
+  if(!l.length)h+=`<tr><td colspan="12" class="empty" style="padding:24px">${base.length?"Ninguna tarea coincide con los filtros.":"Aún no hay tareas cargadas."}</td></tr>`;
   l.forEach(t=>{const nf=(t.historial||[]).reduce((n,x)=>n+(x.fotos?x.fotos.length:0),0);
     h+=`<tr data-open="${esc(t.id)}" tabindex="0">
       <td class="num">${F[t.id]}</td>
-      <td><div class="t-title">${esc(t.titulo)}</div>${t.proyecto&&proyOf(t.proyecto)?`<div class="t-proj">${esc(proyOf(t.proyecto).nombre)}</div>`:""}${t.descripcion?`<div class="t-desc">${esc(t.descripcion)}</div>`:""}</td>
+      <td><div class="t-title">${esc(t.titulo)}</div>${t.descripcion?`<div class="t-desc">${esc(t.descripcion)}</div>`:""}</td>
       <td><span class="tag">${esc(t.turno)}</span></td>
       <td>${esc(t.responsable||"—")}</td>
       <td><span class="prio ${esc(t.prioridad)}">${esc(t.prioridad||"")}</span></td>
@@ -863,11 +865,10 @@ function viewList(){
   h+=`<div class="m-list cards">${l.length?l.map(t=>`<article class="card tap${vencida(t)?" late":""}" data-open="${esc(t.id)}" tabindex="0" role="button">
     <div class="ttl-row"><span class="tag">${esc(t.turno)}</span><h4>${esc(t.titulo)}</h4><span class="num">N° ${F[t.id]}</span></div>
     <div class="row">${pill(t)}<span class="prio ${esc(t.prioridad)}">${esc(t.prioridad||"")}</span></div>
-    ${t.proyecto&&proyOf(t.proyecto)?`<div class="t-proj">${esc(proyOf(t.proyecto).nombre)}</div>`:""}
     <div class="meta"><span>${esc(t.responsable||"Sin responsable")}</span><span>Compromiso <b${vencida(t)?' style="color:var(--late)"':""}>${fmtD(t.fechaCompromiso)}</b></span></div>
     <div>${bar(t.avance)}</div>
     ${t.ultimoComentario?`<div class="muted">“${esc(t.ultimoComentario)}”</div>`:""}
-  </article>`).join(""):`<p class="empty">${S.tareas.length?"Ninguna tarea coincide con los filtros.":"Aún no hay tareas cargadas."}</p>`}</div>`;
+  </article>`).join(""):`<p class="empty">${base.length?"Ninguna tarea coincide con los filtros.":"Aún no hay tareas cargadas."}</p>`}</div>`;
   return h;
 }
 
@@ -881,15 +882,18 @@ function viewMine(){
   <div class="turn-pick" role="group" aria-label="Turno">${cfg.turnos.map(t=>`<button data-pick="${esc(t.id)}" aria-pressed="${t.id===tr.id}">${esc(t.id)}</button>`).join("")}</div>
   <p class="muted" style="margin-top:-6px">${esc(tr.nombre)}${tr.jefe?", jefe "+esc(tr.jefe):""}. ${open.length} tareas abiertas.</p>`;
   if(!open.length)h+=`<p class="banner">No hay tareas abiertas para este turno.</p>`;
-  h+=`<div class="cards">`+open.map(t=>`<article class="card${vencida(t)?" late":""}">
+  const card=t=>`<article class="card${vencida(t)?" late":""}">
     <div class="row">${pill(t)}<span class="prio ${esc(t.prioridad)}">${esc(t.prioridad||"")}</span></div>
     <h4>${esc(t.titulo)}</h4>
-    ${t.proyecto&&proyOf(t.proyecto)?`<div class="t-proj">${esc(proyOf(t.proyecto).nombre)}</div>`:""}
     <div class="meta"><span>Responsable: ${esc(t.responsable||"—")}</span><span>Compromiso: <b${vencida(t)?' style="color:var(--late)"':""}>${fmtD(t.fechaCompromiso)}</b></span></div>
     <div>${bar(t.avance)}</div>
     ${t.ultimoComentario?`<div class="muted">“${esc(t.ultimoComentario)}”</div>`:""}
     <button class="btn navy" data-open="${esc(t.id)}" data-focus="report">${ico("cam")}Registrar avance</button>
-  </article>`).join("")+`</div>`;
+  </article>`;
+  const oT=open.filter(t=>!(t.proyecto&&proyOf(t.proyecto))),oP=open.filter(t=>t.proyecto&&proyOf(t.proyecto));
+  if(oT.length)h+=`<h3 class="mine-sec">Tareas <span class="muted">(${oT.length})</span></h3><div class="cards">${oT.map(card).join("")}</div>`;
+  if(oP.length){const g={};oP.forEach(t=>(g[t.proyecto]=g[t.proyecto]||[]).push(t));
+    h+=`<h3 class="mine-sec">Tareas de proyectos <span class="muted">(${oP.length})</span></h3>`+Object.keys(g).map(pid=>`<div class="mine-proj"><button class="linkbtn" data-proj="${esc(pid)}">${esc(proyOf(pid).nombre)}</button></div><div class="cards">${g[pid].map(card).join("")}</div>`).join("")}
   if(done.length)h+=`<h3 style="margin:26px 0 10px;font-size:16px">Completadas recientemente</h3><div class="panel"><ul class="mini">${done.map(t=>`<li data-open="${esc(t.id)}"><span class="mini-t">${esc(t.titulo)}</span><span class="mini-m">cerrada ${fmtD(t.fechaCierre)}</span></li>`).join("")}</ul></div>`;
   return h;
 }
@@ -955,12 +959,12 @@ function bindView(m){
   m.querySelectorAll("[data-act=newproj]").forEach(b=>b.onclick=()=>openProjForm(null));
   m.querySelectorAll("[data-proj]").forEach(el=>{el.addEventListener("click",()=>openProj(el.dataset.proj));el.addEventListener("keydown",e=>{if(e.key==="Enter")openProj(el.dataset.proj)})});
   m.querySelectorAll("[data-act=xlsx]").forEach(b=>b.onclick=exportXlsx);
+  m.querySelectorAll("[data-goview]").forEach(b=>b.onclick=e=>{e.stopPropagation();S.view=b.dataset.goview;render()});
   m.querySelectorAll("[data-goturno]").forEach(b=>b.onclick=()=>{S.f={q:"",turno:b.dataset.goturno,estado:"",soloVencidas:false};S.view="list";render()});
   const fq=m.querySelector("#fq");
   if(fq){
     fq.oninput=()=>{S.f.q=fq.value;const pos=fq.selectionStart;render();const n=document.getElementById("fq");n.focus();n.setSelectionRange(pos,pos)};
     m.querySelector("#ft").onchange=e=>{S.f.turno=e.target.value;render()};
-    const fp=m.querySelector("#fp");if(fp)fp.onchange=e=>{S.f.proyecto=e.target.value;render()};
     m.querySelectorAll("[data-chip]").forEach(c=>c.onclick=()=>{const v=c.dataset.chip;if(v==="__late"){S.f.soloVencidas=!S.f.soloVencidas;S.f.estado=""}else{S.f.estado=v;S.f.soloVencidas=false}render()});
     m.querySelectorAll("th[data-sort]").forEach(th=>th.onclick=()=>{const k=th.dataset.sort;if(S.sort.k===k)S.sort.dir*=-1;else S.sort={k,dir:1};render()});
   }
@@ -986,7 +990,7 @@ function openForm(id,preset){
   <div class="dlg-body"><div class="grid2">
     <div class="fl full"><label for="f_ti">Tarea</label><input class="field" id="f_ti" required maxlength="140" value="${esc(d.titulo)}" placeholder="Ej.: Cambio de rodillos correa CT-3"></div>
     <div class="fl full"><label for="f_de">Descripción</label><textarea class="field" id="f_de" placeholder="Alcance, ubicación, recursos o criterios de cierre">${esc(d.descripcion)}</textarea></div>
-    <div class="fl full"><label for="f_pj">Proyecto</label><select class="field" id="f_pj"><option value="">Sin proyecto</option>${S.proyectos.filter(p=>p.estado!=="Cerrado"||p.id===d.proyecto).map(p=>`<option value="${esc(p.id)}"${d.proyecto===p.id?" selected":""}>${esc(p.nombre)}</option>`).join("")}</select></div>
+    <div class="fl full"><label for="f_pj">Proyecto <span class="muted">(si eliges uno, la tarea se verá en Proyectos y no en la planilla)</span></label><select class="field" id="f_pj"><option value="">Sin proyecto</option>${S.proyectos.filter(p=>p.estado!=="Cerrado"||p.id===d.proyecto).map(p=>`<option value="${esc(p.id)}"${d.proyecto===p.id?" selected":""}>${esc(p.nombre)}</option>`).join("")}</select></div>
     <div class="fl"><label for="f_tu">Turno</label><select class="field" id="f_tu">${cfg.turnos.map(x=>`<option value="${esc(x.id)}"${d.turno===x.id?" selected":""}>${esc(x.nombre)}${x.jefe?" ("+esc(x.jefe)+")":""}</option>`).join("")}</select></div>
     <div class="fl"><label for="f_re">Responsable</label><select class="field" id="f_re">${respOpts(d.turno)}</select></div>
     <div class="fl"><label for="f_fi">Fecha de inicio</label><input class="field" type="date" id="f_fi" value="${esc(d.fechaInicio)}"></div>
@@ -1101,10 +1105,12 @@ function loadScript(src){return new Promise((res,rej)=>{if(window.XLSX)return re
 async function exportXlsx(){
   try{
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
-    const F=folios();const rows=[...S.tareas].sort((a,b)=>F[a.id]-F[b.id]).map(t=>({"N°":F[t.id],"Tarea":t.titulo,"Descripción":t.descripcion||"","Proyecto":(proyOf(t.proyecto)||{}).nombre||"","Turno":turnoNombre(t.turno),"Jefe de turno":(turnoOf(t.turno)||{}).jefe||"","Responsable":t.responsable||"","Prioridad":t.prioridad||"","Fecha inicio":fmtD(t.fechaInicio),"Fecha compromiso":fmtD(t.fechaCompromiso),"Estado":t.estado,"Vencida":vencida(t)?"Sí":"No","Avance %":+t.avance||0,"Fecha cierre real":t.fechaCierre?fmtD(t.fechaCierre):"","Último comentario":t.ultimoComentario||"","N° reportes":(t.historial||[]).length}));
+    const F=folios();const mk=list=>[...list].sort((a,b)=>F[a.id]-F[b.id]).map(t=>({"N°":F[t.id],"Tarea":t.titulo,"Descripción":t.descripcion||"","Proyecto":(proyOf(t.proyecto)||{}).nombre||"","Turno":turnoNombre(t.turno),"Jefe de turno":(turnoOf(t.turno)||{}).jefe||"","Responsable":t.responsable||"","Prioridad":t.prioridad||"","Fecha inicio":fmtD(t.fechaInicio),"Fecha compromiso":fmtD(t.fechaCompromiso),"Estado":t.estado,"Vencida":vencida(t)?"Sí":"No","Avance %":+t.avance||0,"Fecha cierre real":t.fechaCierre?fmtD(t.fechaCierre):"","Último comentario":t.ultimoComentario||"","N° reportes":(t.historial||[]).length}));
+    const rows=mk(sueltas()).map(r=>{delete r["Proyecto"];return r}),rowsP=mk(deProyectos());
     const hist=[];S.tareas.forEach(t=>(t.historial||[]).forEach(h=>hist.push({"N° tarea":F[t.id],"Tarea":t.titulo,"Turno":turnoNombre(t.turno),"Fecha y hora":fmtDT(h.t),"Reportado por":h.por||"","Estado":h.estado,"Avance %":h.avance,"Comentario":h.comentario||"","Fotos":h.fotos?h.fotos.length:0})));
     const wb=XLSX.utils.book_new();
-    const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[6,40,40,26,12,22,22,10,14,16,12,9,10,16,50,11].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,"Tareas");
+    const ws=XLSX.utils.json_to_sheet(rows.length?rows:[{"N°":"","Tarea":"Sin tareas"}]);ws["!cols"]=[6,40,40,12,22,22,10,14,16,12,9,10,16,50,11].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,"Tareas");
+    if(rowsP.length){const wq=XLSX.utils.json_to_sheet(rowsP);wq["!cols"]=[6,40,40,26,12,22,22,10,14,16,12,9,10,16,50,11].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,wq,"Tareas de proyectos")}
     const wh=XLSX.utils.json_to_sheet(hist.length?hist:[{"N° tarea":"","Tarea":"Sin reportes"}]);wh["!cols"]=[9,40,12,18,22,12,10,60,7].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,wh,"Historial");
     if(S.proyectos.length){const wp=XLSX.utils.json_to_sheet(S.proyectos.map(p=>{const s=pStats(p);return {"Proyecto":p.nombre,"Descripción":p.descripcion||"","Responsable":p.responsable||"","Estado":p.estado,"Equipo":(p.equipo||[]).join(", "),"Fecha de ejecución":fmtD(p.fechaInicio),"Fecha de cierre":fmtD(p.fechaTermino),"Atrasado":pLate(p)?"Sí":"No","Avance %":s.avTot,"Tareas":s.total,"Completadas":s.ok,"Vencidas":s.late}}));wp["!cols"]=[34,40,22,14,40,16,14,9,9,8,11,9].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,wp,"Proyectos")}
     const pn=id=>(proyOf(id)||{}).nombre||"";
