@@ -390,7 +390,7 @@ function fmtDT(iso){if(!iso)return "";const d=new Date(iso);return d.toLocaleDat
 function diasEntre(a,b){return Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/86400000)}
 function vencida(t){return t.estado!=="Completada" && t.fechaCompromiso && t.fechaCompromiso < hoy()}
 function turnoOf(id){return (S.cfg||DEFAULT_CFG).turnos.find(x=>x.id===id)}
-function turnoNombre(id){const t=turnoOf(id);return t?t.nombre:("Turno "+id)}
+function turnoNombre(id){if(!id)return "Sin turno";const t=turnoOf(id);return t?t.nombre:("Turno "+id)}
 function personas(tid){const t=turnoOf(tid);if(!t)return[];return [t.jefe,...(t.operadores||[])].filter(Boolean)}
 function newId(){return "t"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function toast(msg,err){const el=document.getElementById("toast");el.textContent=msg;el.className="toast on"+(err?" err":"");clearTimeout(toast._t);toast._t=setTimeout(()=>el.className="toast",2600)}
@@ -552,13 +552,13 @@ function viewDash(){
       <div class="shift-stats"><div><b>${s.act}</b>abiertas</div><div><b>${s.avg}%</b>avance</div><div class="${s.late?"late":""}"><b>${s.late}</b>vencidas</div></div>
       <div class="shift-foot"><span class="muted">${s.ok} completadas</span><button class="linkbtn" data-goturno="${esc(tr.id)}">Ver tareas</button></div>
     </article>`}).join("")+`</div>`;
-  const li=t=>`<li data-open="${esc(t.id)}"><span class="tag">${esc(t.turno)}</span><span class="mini-t">N° ${F[t.id]} ${esc(t.titulo)}</span><span class="mini-m">${fmtD(t.fechaCompromiso)}</span></li>`;
+  const li=t=>`<li data-open="${esc(t.id)}"><span class="tag">${esc(t.turno||"—")}</span><span class="mini-t">N° ${F[t.id]} ${esc(t.titulo)}</span><span class="mini-m">${fmtD(t.fechaCompromiso)}</span></li>`;
   const pa=S.proyectos.filter(p=>p.estado!=="Cerrado");
   if(pa.length)h+=`<section class="panel" style="margin-bottom:14px"><h3>Proyectos en curso</h3><ul class="mini">${pa.slice(0,8).map(p=>{const s=pStats(p);return `<li data-proj="${esc(p.id)}"><span class="mini-t">${esc(p.nombre)}</span>${pPill(p)}<span class="mini-m">${bar(s.avTot)}</span></li>`}).join("")}</ul></section>`;
   h+=`<div class="two">
     <section class="panel"><h3>Vencidas sin cerrar</h3>${lates.length?`<ul class="mini">${lates.slice(0,8).map(li).join("")}</ul>`:`<p class="empty">No hay compromisos vencidos.</p>`}</section>
     <section class="panel"><h3>Vencen en los próximos 7 días</h3>${prox.length?`<ul class="mini">${prox.slice(0,8).map(li).join("")}</ul>`:`<p class="empty">Nada vence esta semana.</p>`}</section>
-    <section class="panel"><h3>Últimos reportes de avance</h3>${recientes.length?`<ul class="mini">${recientes.map(({t,h})=>`<li data-open="${esc(t.id)}"><span class="tag">${esc(t.turno)}</span><span class="mini-t">${esc(t.titulo)} <span class="muted">${h.avance}%${h.fotos&&h.fotos.length?" · "+h.fotos.length+" foto"+(h.fotos.length>1?"s":""):""}</span></span><span class="mini-m">${fmtDT(h.t)}</span></li>`).join("")}</ul>`:`<p class="empty">Los reportes de los jefes de turno aparecerán aquí.</p>`}</section>
+    <section class="panel"><h3>Últimos reportes de avance</h3>${recientes.length?`<ul class="mini">${recientes.map(({t,h})=>`<li data-open="${esc(t.id)}"><span class="tag">${esc(t.turno||"—")}</span><span class="mini-t">${esc(t.titulo)} <span class="muted">${h.avance}%${h.fotos&&h.fotos.length?" · "+h.fotos.length+" foto"+(h.fotos.length>1?"s":""):""}</span></span><span class="mini-m">${fmtDT(h.t)}</span></li>`).join("")}</ul>`:`<p class="empty">Los reportes de los jefes de turno aparecerán aquí.</p>`}</section>
   </div>`;
   if(!all.length)h+=`<p class="banner" style="margin-top:18px">Aún no hay tareas. ${S.canEdit?"Usa “Nueva tarea” para cargar la primera y asignarla a un turno.":"El jefe de operaciones cargará las tareas."}</p>`;
   return h;
@@ -568,6 +568,7 @@ function viewDash(){
 const P_ESTADOS=["Planificado","En ejecución","Detenido","Cerrado"];
 const P_COLOR={"Planificado":"var(--st-pend)","En ejecución":"var(--st-proc)","Detenido":"var(--st-det)","Cerrado":"var(--st-ok)"};
 function proyOf(id){return id?S.proyectos.find(p=>p.id===id):null}
+function personasProy(pid){const p=proyOf(pid);if(!p)return[];return [...new Set([p.responsable,...(p.equipo||[])].filter(Boolean))]}
 function sueltas(){return S.tareas.filter(t=>!(t.proyecto&&proyOf(t.proyecto)))}
 function deProyectos(){return S.tareas.filter(t=>t.proyecto&&proyOf(t.proyecto))}
 function tareasDe(pid){return S.tareas.filter(t=>t.proyecto===pid)}
@@ -648,7 +649,7 @@ function buildProj(){
       ${as.regs?`<p class="hint">Los números indican asistencias sobre jornadas registradas.</p>`:""}`:`<p class="empty">Sin equipo definido.${S.canEdit?" Agrégalo con “Editar”.":""}</p>`}
 
     <div class="p-row"><h4 class="p-h" style="margin:0">Tareas <span class="muted">(${s.total})</span></h4>${S.canEdit?`<button class="btn" data-padd>${ico("plus")}Agregar tarea</button>`:""}</div>
-    ${l.length?`<ul class="mini">${l.map(t=>`<li data-ptask="${esc(t.id)}"><span class="tag">${esc(t.turno)}</span><span class="mini-t">N° ${F[t.id]} ${esc(t.titulo)}</span>${pill(t)}<span class="mini-m">${+t.avance||0}%</span></li>`).join("")}</ul>`:`<p class="empty">Sin tareas asociadas.</p>`}
+    ${l.length?`<ul class="mini">${l.map(t=>`<li data-ptask="${esc(t.id)}"><span class="tag">${esc(t.turno||"—")}</span><span class="mini-t">N° ${F[t.id]} ${esc(t.titulo)}</span>${pill(t)}<span class="mini-m">${+t.avance||0}%</span></li>`).join("")}</ul>`:`<p class="empty">Sin tareas asociadas.</p>`}
 
     <h4 class="p-h">Registros</h4>
     <div class="chips" role="group" aria-label="Filtrar registros">
@@ -851,7 +852,7 @@ function viewList(){
     h+=`<tr data-open="${esc(t.id)}" tabindex="0">
       <td class="num">${F[t.id]}</td>
       <td><div class="t-title">${esc(t.titulo)}</div>${t.descripcion?`<div class="t-desc">${esc(t.descripcion)}</div>`:""}</td>
-      <td><span class="tag">${esc(t.turno)}</span></td>
+      <td><span class="tag">${esc(t.turno||"—")}</span></td>
       <td>${esc(t.responsable||"—")}</td>
       <td><span class="prio ${esc(t.prioridad)}">${esc(t.prioridad||"")}</span></td>
       <td class="date">${fmtD(t.fechaInicio)}</td>
@@ -863,7 +864,7 @@ function viewList(){
       <td class="num">${nf||""}</td></tr>`});
   h+=`</tbody></table></div>`;
   h+=`<div class="m-list cards">${l.length?l.map(t=>`<article class="card tap${vencida(t)?" late":""}" data-open="${esc(t.id)}" tabindex="0" role="button">
-    <div class="ttl-row"><span class="tag">${esc(t.turno)}</span><h4>${esc(t.titulo)}</h4><span class="num">N° ${F[t.id]}</span></div>
+    <div class="ttl-row"><span class="tag">${esc(t.turno||"—")}</span><h4>${esc(t.titulo)}</h4><span class="num">N° ${F[t.id]}</span></div>
     <div class="row">${pill(t)}<span class="prio ${esc(t.prioridad)}">${esc(t.prioridad||"")}</span></div>
     <div class="meta"><span>${esc(t.responsable||"Sin responsable")}</span><span>Compromiso <b${vencida(t)?' style="color:var(--late)"':""}>${fmtD(t.fechaCompromiso)}</b></span></div>
     <div>${bar(t.avance)}</div>
@@ -985,14 +986,14 @@ function openForm(id,preset){
   const d=t||{titulo:"",descripcion:"",turno:cfg.turnos[0].id,responsable:"",prioridad:"Media",fechaInicio:hoy(),fechaCompromiso:addDays(hoy(),7),estado:"Pendiente",avance:0,proyecto:""};
   if(!t&&preset)Object.assign(d,preset);
   const dlg=document.getElementById("dlg");S.openId=null;S.openProj=null;
-  const respOpts=tid=>{const p=personas(tid);const tr=turnoOf(tid);return `<option value="">Sin asignar</option>`+p.map(n=>`<option${d.responsable===n?" selected":""}>${esc(n)}</option>`).join("")+(d.responsable&&!p.includes(d.responsable)?`<option selected>${esc(d.responsable)}</option>`:"")};
+  const respOpts=()=>{const p=d.proyecto?personasProy(d.proyecto):personas(d.turno);return `<option value="">Sin asignar</option>`+p.map(n=>`<option${d.responsable===n?" selected":""}>${esc(n)}</option>`).join("")+(d.responsable&&!p.includes(d.responsable)?`<option selected>${esc(d.responsable)}</option>`:"")};
   dlg.innerHTML=`<div class="dlg-head"><div style="flex:1"><h3>${t?"Editar tarea":"Nueva tarea"}</h3><div class="sub">${t?"Los cambios quedan visibles para todos los turnos.":"Asigna la tarea a un turno y define el compromiso de cierre."}</div></div><button class="close" data-close aria-label="Cerrar">×</button></div>
   <div class="dlg-body"><div class="grid2">
     <div class="fl full"><label for="f_ti">Tarea</label><input class="field" id="f_ti" required maxlength="140" value="${esc(d.titulo)}" placeholder="Ej.: Cambio de rodillos correa CT-3"></div>
     <div class="fl full"><label for="f_de">Descripción</label><textarea class="field" id="f_de" placeholder="Alcance, ubicación, recursos o criterios de cierre">${esc(d.descripcion)}</textarea></div>
     <div class="fl full"><label for="f_pj">Proyecto <span class="muted">(si eliges uno, la tarea se verá en Proyectos y no en la planilla)</span></label><select class="field" id="f_pj"><option value="">Sin proyecto</option>${S.proyectos.filter(p=>p.estado!=="Cerrado"||p.id===d.proyecto).map(p=>`<option value="${esc(p.id)}"${d.proyecto===p.id?" selected":""}>${esc(p.nombre)}</option>`).join("")}</select></div>
-    <div class="fl"><label for="f_tu">Turno</label><select class="field" id="f_tu">${cfg.turnos.map(x=>`<option value="${esc(x.id)}"${d.turno===x.id?" selected":""}>${esc(x.nombre)}${x.jefe?" ("+esc(x.jefe)+")":""}</option>`).join("")}</select></div>
-    <div class="fl"><label for="f_re">Responsable</label><select class="field" id="f_re">${respOpts(d.turno)}</select></div>
+    <div class="fl"><label for="f_tu">Turno <span class="muted" id="f_tuh">${d.proyecto?"(opcional)":""}</span></label><select class="field" id="f_tu"><option value="" id="f_tu0"${d.turno?"":" selected"}${d.proyecto?"":" hidden disabled"}>Sin turno</option>${cfg.turnos.map(x=>`<option value="${esc(x.id)}"${d.turno===x.id?" selected":""}>${esc(x.nombre)}${x.jefe?" ("+esc(x.jefe)+")":""}</option>`).join("")}</select></div>
+    <div class="fl"><label for="f_re">Responsable <span class="muted" id="f_reh">${d.proyecto?"(del equipo del proyecto)":""}</span></label><select class="field" id="f_re">${respOpts()}</select></div>
     <div class="fl"><label for="f_fi">Fecha de inicio</label><input class="field" type="date" id="f_fi" value="${esc(d.fechaInicio)}"></div>
     <div class="fl"><label for="f_fc">Fecha de cierre comprometida</label><input class="field" type="date" id="f_fc" value="${esc(d.fechaCompromiso)}"></div>
     <div class="fl"><label for="f_pr">Prioridad</label><select class="field" id="f_pr">${PRIOS.map(p=>`<option${d.prioridad===p?" selected":""}>${p}</option>`).join("")}</select></div>
@@ -1001,13 +1002,20 @@ function openForm(id,preset){
   <p class="hint" id="f_err" role="alert"></p>
   <div class="dlg-actions">${t?`<button class="btn ghost" data-del style="margin-right:auto;color:var(--st-det)">Eliminar tarea</button>`:""}<button class="btn" data-close>Cancelar</button><button class="btn primary" data-save>${t?"Guardar cambios":"Crear tarea"}</button></div></div>`;
   dlg.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>dlg.close());
-  dlg.querySelector("#f_tu").onchange=e=>{d.turno=e.target.value;d.responsable="";dlg.querySelector("#f_re").innerHTML=respOpts(d.turno)};
+  dlg.querySelector("#f_tu").onchange=e=>{d.turno=e.target.value;if(!d.proyecto){d.responsable="";dlg.querySelector("#f_re").innerHTML=respOpts()}};
+  dlg.querySelector("#f_pj").onchange=e=>{d.proyecto=e.target.value;const cur=dlg.querySelector("#f_re").value;
+    const ok=d.proyecto?personasProy(d.proyecto):personas(d.turno);d.responsable=ok.includes(cur)?cur:"";
+    dlg.querySelector("#f_re").innerHTML=respOpts();
+    const o=dlg.querySelector("#f_tu0"),tu=dlg.querySelector("#f_tu");
+    if(d.proyecto){o.hidden=false;o.disabled=false}else{o.hidden=true;o.disabled=true;if(!tu.value){tu.value=cfg.turnos[0].id;d.turno=tu.value;d.responsable="";dlg.querySelector("#f_re").innerHTML=respOpts()}}
+    dlg.querySelector("#f_tuh").textContent=d.proyecto?"(opcional)":"";dlg.querySelector("#f_reh").textContent=d.proyecto?"(del equipo del proyecto)":""};
   const del=dlg.querySelector("[data-del]");
   if(del)del.onclick=async()=>{if(!confirm("¿Eliminar esta tarea y su historial? No se puede deshacer."))return;try{await deleteTask(t.id);dlg.close();toast("Tarea eliminada")}catch(e){toast(e.message||"No se pudo eliminar la tarea.",true)}};
   dlg.querySelector("[data-save]").onclick=async ev=>{
     const g=i=>dlg.querySelector(i).value;
     const err=dlg.querySelector("#f_err");
     if(!g("#f_ti").trim()){err.textContent="Escribe el nombre de la tarea.";dlg.querySelector("#f_ti").focus();return}
+    if(!g("#f_pj")&&!g("#f_tu")){err.textContent="Elige un turno o asigna la tarea a un proyecto.";return}
     if(!g("#f_fc")){err.textContent="Indica la fecha de cierre comprometida.";return}
     if(g("#f_fi")&&g("#f_fc")<g("#f_fi")){err.textContent="La fecha de compromiso no puede ser anterior al inicio.";return}
     const n=t?JSON.parse(JSON.stringify(t)):{id:newId(),creado:new Date().toISOString(),estado:"Pendiente",avance:0,historial:[],ultimoComentario:"",fechaCierre:""};
@@ -1034,9 +1042,9 @@ function buildDetail(keep){
   if(!t){dlg.innerHTML=`<div class="dlg-head"><h3>Tarea no disponible</h3><button class="close" data-close aria-label="Cerrar">×</button></div><div class="dlg-body"><p class="muted">Esta tarea fue eliminada.</p></div>`;dlg.querySelector("[data-close]").onclick=()=>dlg.close();return}
   const F=folios(),tr=turnoOf(t.turno);const hist=[...(t.historial||[])].reverse();
   const av=keep&&keep.av!=null?keep.av:(t.avance||0);const es=keep&&keep.es?keep.es:(t.estado==="Pendiente"?"En proceso":t.estado);
-  const gente=personas(t.turno);
+  const gente=proyOf(t.proyecto)?[...new Set([...personasProy(t.proyecto),...personas(t.turno)])]:personas(t.turno);
   const diasRest=t.fechaCompromiso?diasEntre(hoy(),t.fechaCompromiso):null;
-  dlg.innerHTML=`<div data-detail></div><div class="dlg-head"><div style="flex:1"><h3>N° ${F[t.id]}. ${esc(t.titulo)}</h3><div class="sub">${esc(turnoNombre(t.turno))}${tr&&tr.jefe?", jefe "+esc(tr.jefe):""}</div></div>
+  dlg.innerHTML=`<div data-detail></div><div class="dlg-head"><div style="flex:1"><h3>N° ${F[t.id]}. ${esc(t.titulo)}</h3><div class="sub">${proyOf(t.proyecto)?"Proyecto "+esc(proyOf(t.proyecto).nombre)+(t.turno?" · ":""):""}${!t.turno&&proyOf(t.proyecto)?"":esc(turnoNombre(t.turno))}${tr&&tr.jefe?", jefe "+esc(tr.jefe):""}</div></div>
     ${S.canEdit?`<button class="btn" data-edit>Editar</button>`:""}<button class="close" data-close aria-label="Cerrar">×</button></div>
   <div class="dlg-body">
     <div class="facts">
