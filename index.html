@@ -304,6 +304,7 @@ textarea.field{min-height:78px;resize:vertical}
   .sec-head h2{font-size:19px}
 }
 .mine-sec{margin:22px 0 10px;font-size:16px}.mine-proj{margin:14px 0 8px;font-weight:700}.mine-proj .linkbtn{font-size:15px}
+.lockbox{max-width:380px;margin:40px auto;text-align:center}.lockbox h2{margin:8px 0 4px}.lock-ic{color:var(--orange);display:flex;justify-content:center}.lock-err{color:#c0392b;font-size:14px;min-height:1.2em;margin:8px 0 0}
 </style>
 </head>
 <body>
@@ -435,6 +436,7 @@ async function deleteTask(id){
   S.tareas=S.tareas.filter(x=>x.id!==id);render();
 }
 async function saveCfg(cfg){
+  if(cfg.claveProy===undefined&&S.cfg&&S.cfg.claveProy)cfg.claveProy=S.cfg.claveProy;
   cfg.turnos.forEach(t=>{t.correo=String(t.correo||"").trim().toLowerCase()});
   if(DEMO){const d=demoDB();d.cfg=cfg;demoSave(d)}
   else{try{
@@ -491,7 +493,7 @@ async function photoSrc(id){
 function render(){
   document.querySelectorAll(".nav-i").forEach(b=>{if(b.dataset.view===S.view)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   document.getElementById("apptitle").textContent={dash:"Inicio",proj:"Proyectos",list:"Tareas",mine:"Mi turno",team:"Equipo"}[S.view];
-  document.getElementById("fab").hidden=!(S.canEdit&&(S.view==="dash"||S.view==="list"||S.view==="proj"));
+  document.getElementById("fab").hidden=!(S.canEdit&&(S.view==="dash"||S.view==="list"||(S.view==="proj"&&!projLocked())));
   const nl=S.tareas.filter(vencida).length,bl=document.querySelector('[data-badge="list"]');bl.textContent=nl;bl.hidden=!nl;
   const nm=S.tareas.filter(t=>t.turno===S.miTurno&&t.estado!=="Completada").length,bm=document.querySelector('[data-badge="mine"]');bm.textContent=nm;bm.hidden=!nm;
   const m=document.getElementById("main");
@@ -501,7 +503,7 @@ function render(){
   if(DEMO)html+=`<div class="banner">Modo demostración: los datos se guardan solo en este navegador. Para compartirlos con los jefes de turno, conecta Firebase (ver instructivo).</div>`;
   if(!S.loaded){m.innerHTML=html+(S.loadErr?`<div class="banner">${esc(S.loadErr)}<div style="margin-top:10px">${S.email?`<button class="btn" id="retry">Cerrar sesión</button>`:`<button class="btn" id="retry">Reintentar</button>`}</div></div>`:`<p class="muted">Cargando tareas…</p>`);const rt=m.querySelector("#retry");if(rt)rt.onclick=()=>{if(S.email)logout();else location.reload()};return}
   if(S.view==="dash")html+=viewDash();
-  else if(S.view==="proj")html+=viewProj();
+  else if(S.view==="proj")html+=projLocked()?viewProjLock():viewProj();
   else if(S.view==="list")html+=viewList();
   else if(S.view==="mine")html+=viewMine();
   else html+=viewTeam();
@@ -608,7 +610,47 @@ function viewProj(){
 }
 
 /* --- Detalle del proyecto --- */
-function openProj(id){S.openId=null;S.openProj=id;S.regF=S.regF||"";const dlg=document.getElementById("dlg");buildProj();if(!dlg.open)dlg.showModal()}
+/* ---------- Clave del área Proyectos ---------- */
+const PK_SS="htp_proy_ok";
+async function pkHash(c){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("htp-proyectos:"+c));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+function pkSet(){return (S.cfg&&S.cfg.claveProy)||""}
+function pkOk(h){try{sessionStorage.setItem(PK_SS,h)}catch(e){}}
+function pkForget(){try{sessionStorage.removeItem(PK_SS)}catch(e){}}
+function projLocked(){const h=pkSet();if(!h)return true;let v="";try{v=sessionStorage.getItem(PK_SS)||""}catch(e){}return v!==h}
+const LOCK_SVG='<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+function viewProjLock(){
+  const h=pkSet();
+  let body;
+  if(!h&&!S.canEdit)body=`<p class="muted">El jefe de operaciones aún no define la clave de acceso a esta área.</p>`;
+  else if(!h)body=`<p class="muted">Crea la clave que se pedirá para entrar a Proyectos. Compártela solo con quienes deban verlos.</p>
+    <input class="field" id="pk_new" type="password" autocomplete="new-password" placeholder="Nueva clave (mínimo 4 caracteres)">
+    <input class="field" id="pk_new2" type="password" autocomplete="new-password" placeholder="Repite la clave" style="margin-top:8px">
+    <button class="btn primary" id="pk_create" style="margin-top:12px;width:100%">Crear clave y entrar</button>`;
+  else body=`<p class="muted">Esta área requiere clave.</p>
+    <input class="field" id="pk_in" type="password" autocomplete="current-password" placeholder="Clave" autofocus>
+    <button class="btn primary" id="pk_go" style="margin-top:12px;width:100%">Entrar</button>`;
+  return `<section class="panel lockbox"><div class="lock-ic">${LOCK_SVG}</div><h2>Proyectos</h2>${body}<p class="lock-err" id="pk_err" role="alert"></p></section>`;
+}
+function pkEnter(){S.view="proj";render();window.scrollTo(0,0);if(S.pendingProj){const id=S.pendingProj;S.pendingProj=null;openProj(id)}}
+function bindLock(m){
+  const err=t=>{const e=m.querySelector("#pk_err");if(e)e.textContent=t};
+  const go=m.querySelector("#pk_go"),inp=m.querySelector("#pk_in");
+  if(go){const f=async()=>{const v=inp.value;if(!v){err("Escribe la clave.");return}
+      const h=await pkHash(v);if(h===pkSet()){pkOk(h);pkEnter()}else{err("Clave incorrecta.");inp.value="";inp.focus()}};
+    go.onclick=f;inp.onkeydown=e=>{if(e.key==="Enter")f()};setTimeout(()=>inp.focus(),50)}
+  const cr=m.querySelector("#pk_create");
+  if(cr)cr.onclick=async()=>{const a=m.querySelector("#pk_new").value,b=m.querySelector("#pk_new2").value;
+    if(a.length<4){err("La clave debe tener al menos 4 caracteres.");return}if(a!==b){err("Las claves no coinciden.");return}
+    cr.disabled=true;try{const h=await pkHash(a);const c=JSON.parse(JSON.stringify(S.cfg||DEFAULT_CFG));c.claveProy=h;await saveCfg(c);S.cfg=c;if(draftCfg)draftCfg.claveProy=h;pkOk(h);toast("Clave creada");pkEnter()}catch(e){err(e.message||"No se pudo guardar la clave.")}cr.disabled=false};
+  const ch=m.querySelector("#pk_change");
+  if(ch)ch.onclick=async()=>{const a=m.querySelector("#pk_c1").value,b=m.querySelector("#pk_c2").value,em=m.querySelector("#pk_cerr");
+    if(a.length<4){em.textContent="La clave debe tener al menos 4 caracteres.";return}if(a!==b){em.textContent="Las claves no coinciden.";return}
+    ch.disabled=true;try{const h=await pkHash(a);const c=JSON.parse(JSON.stringify(S.cfg||DEFAULT_CFG));c.claveProy=h;await saveCfg(c);S.cfg=c;if(draftCfg)draftCfg.claveProy=h;pkOk(h);toast("Clave de Proyectos actualizada");render()}catch(e){em.textContent=e.message||"No se pudo guardar la clave."}ch.disabled=false};
+  const lk=m.querySelector("[data-act=lockproj]");
+  if(lk)lk.onclick=()=>{pkForget();S.view="dash";toast("Proyectos bloqueado");render()};
+}
+function openProj(id){if(projLocked()){S.pendingProj=id;const d=document.getElementById("dlg");if(d.open)d.close();S.view="proj";render();window.scrollTo(0,0);return}openProjRaw(id)}
+function openProjRaw(id){S.openId=null;S.openProj=id;S.regF=S.regF||"";const dlg=document.getElementById("dlg");buildProj();if(!dlg.open)dlg.showModal()}
 function adjHTML(fotos){
   if(!fotos||!fotos.length)return "";
   return `<div class="thumbs">${fotos.map(f=>{const id=typeof f==="string"?f:f.id;const k=typeof f==="string"?"img":(f.tipo||"img");
@@ -946,6 +988,9 @@ function viewTeam(){
     </section>`;
   });
   h+=`</div>`;
+  if(S.canEdit)h+=`<section class="panel" style="margin-top:14px"><h3 style="margin:0 0 4px">Clave del área Proyectos</h3><p class="muted" style="margin:0 0 6px">${pkSet()?"Hay una clave activa. Al cambiarla, todos deberán ingresar la nueva.":"Aún no hay clave: nadie puede entrar a Proyectos hasta que la crees."}</p>
+    <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))"><input class="field" id="pk_c1" type="password" autocomplete="new-password" placeholder="${pkSet()?"Nueva clave":"Clave"}"><input class="field" id="pk_c2" type="password" autocomplete="new-password" placeholder="Repite la clave"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn primary" id="pk_change">${pkSet()?"Cambiar clave":"Crear clave"}</button>${pkSet()&&!projLocked()?`<button class="btn" data-act="lockproj">Bloquear Proyectos ahora</button>`:""}</div><p class="lock-err" id="pk_cerr" role="alert"></p></section>`;
   if(!DEMO)h+=`<section class="panel" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between"><span>Sesión: <b>${esc(S.email)}</b> (${S.rol==="admin"?"jefe de operaciones":"jefe de turno"})</span><button class="btn" data-act="logout">Cerrar sesión</button></section>`;
   return h;
 }
@@ -960,6 +1005,7 @@ function bindView(m){
   m.querySelectorAll("[data-act=newproj]").forEach(b=>b.onclick=()=>openProjForm(null));
   m.querySelectorAll("[data-proj]").forEach(el=>{el.addEventListener("click",()=>openProj(el.dataset.proj));el.addEventListener("keydown",e=>{if(e.key==="Enter")openProj(el.dataset.proj)})});
   m.querySelectorAll("[data-act=xlsx]").forEach(b=>b.onclick=exportXlsx);
+  bindLock(m);
   m.querySelectorAll("[data-goview]").forEach(b=>b.onclick=e=>{e.stopPropagation();S.view=b.dataset.goview;render()});
   m.querySelectorAll("[data-goturno]").forEach(b=>b.onclick=()=>{S.f={q:"",turno:b.dataset.goturno,estado:"",soloVencidas:false};S.view="list";render()});
   const fq=m.querySelector("#fq");
@@ -1176,7 +1222,7 @@ function startData(){
   const admins=ADMIN_EMAILS.map(x=>String(x).trim().toLowerCase());
   fauth.onAuthStateChanged(u=>{
     unsubs.forEach(x=>x());unsubs=[];
-    if(!u){S.needLogin=true;S.email="";S.rol="";S.canEdit=false;S.loaded=false;S.loadErr="";S.tareas=[];S.proyectos=[];S.registros=[];S.view="dash";const d=document.getElementById("dlg");if(d.open)d.close();render();return}
+    if(!u){pkForget();S.needLogin=true;S.email="";S.rol="";S.canEdit=false;S.loaded=false;S.loadErr="";S.tareas=[];S.proyectos=[];S.registros=[];S.view="dash";const d=document.getElementById("dlg");if(d.open)d.close();render();return}
     S.needLogin=false;S.email=(u.email||"").toLowerCase();S.canEdit=admins.indexOf(S.email)>=0;S.rol=S.canEdit?"admin":"turno";
     S.loaded=false;S.loadErr="";render();startData();
   });
