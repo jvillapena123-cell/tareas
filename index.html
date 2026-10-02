@@ -305,6 +305,7 @@ textarea.field{min-height:78px;resize:vertical}
 }
 .mine-sec{margin:22px 0 10px;font-size:16px}.mine-proj{margin:14px 0 8px;font-weight:700}.mine-proj .linkbtn{font-size:15px}
 .lockbox{max-width:380px;margin:40px auto;text-align:center}.lockbox h2{margin:8px 0 4px}.lock-ic{color:var(--orange);display:flex;justify-content:center}.lock-err{color:#c0392b;font-size:14px;min-height:1.2em;margin:8px 0 0}
+.pick-list{display:grid;gap:10px;margin-top:14px}.pick-btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--line,#d9dee7);border-radius:12px;background:var(--surface,#fff);color:inherit;font:inherit;cursor:pointer}.pick-btn:hover:not(:disabled){border-color:var(--orange)}.pick-btn:disabled{opacity:.5;cursor:default}.pick-l{flex:none;width:38px;height:38px;border-radius:10px;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}.pick-t{display:flex;flex-direction:column}.pick-t small{color:var(--muted,#6b7480)}
 </style>
 </head>
 <body>
@@ -369,7 +370,7 @@ const DEMO = !FIREBASE_CONFIG;
 const S = {
   email:"", rol: DEMO?"admin":"", pendingRender:false,
   canEdit: DEMO, canWrite:true,
-  needLogin:false, loadErr:"",
+  needLogin:false, loadErr:"", nombre:"", needPick:false,
   cfg:null, tareas:[], proyectos:[], registros:[], regF:"", projErr:false, openProj:null, loaded:false,
   view:"dash",
   f:{q:"",turno:"",estado:"",soloVencidas:false},
@@ -390,6 +391,9 @@ function fmtD(s){if(!s)return "—";const [y,m,d]=s.split("-");return d+"-"+m+"-
 function fmtDT(iso){if(!iso)return "";const d=new Date(iso);return d.toLocaleDateString("es-CL",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+d.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"})}
 function diasEntre(a,b){return Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/86400000)}
 function vencida(t){return t.estado!=="Completada" && t.fechaCompromiso && t.fechaCompromiso < hoy()}
+function usrGet(){try{return JSON.parse(lsGet("htp_usuario")||"null")}catch(e){return null}}
+function usrSet(o){try{if(o)localStorage.setItem("htp_usuario",JSON.stringify(o));else localStorage.removeItem("htp_usuario")}catch(e){}}
+function jefesLista(){return ((S.cfg||DEFAULT_CFG).turnos||[]).map(t=>({id:t.id,nombre:String(t.jefe||"").trim(),turno:t.nombre||("Turno "+t.id)}))}
 function turnoOf(id){return (S.cfg||DEFAULT_CFG).turnos.find(x=>x.id===id)}
 function turnoNombre(id){if(!id)return "Sin turno";const t=turnoOf(id);return t?t.nombre:("Turno "+id)}
 function personas(tid){const t=turnoOf(tid);if(!t)return[];return [t.jefe,...(t.operadores||[])].filter(Boolean)}
@@ -402,7 +406,7 @@ function bar(p){p=Math.max(0,Math.min(100,+p||0));return `<span class="bar"><i s
 /* ---------- Datos: Firebase (o demostración local) ---------- */
 let fdb=null, fauth=null, unsubs=[];
 function applyEdit(t,n){["titulo","descripcion","turno","responsable","prioridad","fechaInicio","fechaCompromiso","estado","proyecto"].forEach(k=>{if(n[k]!=null)t[k]=n[k]});if(t.estado==="Completada"){t.avance=100;t.fechaCierre=t.fechaCierre||hoy()}else t.fechaCierre=""}
-function applyReport(t,e,ids){const h={t:new Date().toISOString(),avance:+e.avance||0,estado:e.estado,comentario:e.comentario||"",por:e.por||"",fotos:ids,usuario:S.email||""};t.historial=t.historial||[];t.historial.push(h);t.avance=h.avance;t.estado=h.estado;if(h.comentario)t.ultimoComentario=h.comentario;if(h.estado==="Completada"){t.avance=100;t.fechaCierre=t.fechaCierre||hoy()}else t.fechaCierre="";t.actualizado=h.t}
+function applyReport(t,e,ids){const h={t:new Date().toISOString(),avance:+e.avance||0,estado:e.estado,comentario:e.comentario||"",por:e.por||"",fotos:ids,usuario:S.email||S.nombre||""};t.historial=t.historial||[];t.historial.push(h);t.avance=h.avance;t.estado=h.estado;if(h.comentario)t.ultimoComentario=h.comentario;if(h.estado==="Completada"){t.avance=100;t.fechaCierre=t.fechaCierre||hoy()}else t.fechaCierre="";t.actualizado=h.t}
 function demoDB(){let d;try{d=JSON.parse(localStorage.getItem("htp_demo"))}catch(e){}d=d||{cfg:null,tareas:[]};d.proyectos=d.proyectos||[];d.registros=d.registros||[];return d}
 function demoSave(d){try{localStorage.setItem("htp_demo",JSON.stringify(d))}catch(e){throw new Error("El almacenamiento de este navegador está lleno.")}}
 function upsertLocal(t){const i=S.tareas.findIndex(x=>x.id===t.id);if(i>=0)S.tareas[i]=t;else S.tareas.push(t);render()}
@@ -454,7 +458,7 @@ async function reportar(id,entry,fotos){
     applyReport(t,entry,ids);demoSave(d);return t}
   try{
     const ids=[];
-    for(const b64 of fotos){const r=await fdb.collection("fotos").add({tarea:id,data:"data:image/jpeg;base64,"+b64,creado:new Date().toISOString(),usuario:S.email||""});ids.push(r.id)}
+    for(const b64 of fotos){const r=await fdb.collection("fotos").add({tarea:id,data:"data:image/jpeg;base64,"+b64,creado:new Date().toISOString(),usuario:S.email||S.nombre||""});ids.push(r.id)}
     const ref=fdb.collection("tareas").doc(id);
     return await fdb.runTransaction(async tx=>{
       const s=await tx.get(ref);if(!s.exists)throw new Error("La tarea ya no existe.");
@@ -465,7 +469,8 @@ async function reportar(id,entry,fotos){
     });
   }catch(e){throw new Error(fbErr(e))}
 }
-function logout(){if(fauth)fauth.signOut()}
+function logout(){if(fauth){S.wantAdmin=false;S.nombre="";usrSet(null);fauth.signOut()}}
+async function anonIn(){try{await fauth.signInAnonymously()}catch(e){const c=(e&&e.code)||"";S.loadErr=/operation-not-allowed|admin-restricted/.test(c)?"Falta activar el ingreso anónimo en Firebase (Authentication → Método de acceso → Anónimo).":fbErr(e);setConn(false,"Sin acceso");render()}}
 /* ---------- Fotos ---------- */
 function loadImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error("No se pudo leer la imagen"));i.src=u})}
 async function compress(file,max,q){
@@ -498,10 +503,11 @@ function render(){
   const nm=S.tareas.filter(t=>t.turno===S.miTurno&&t.estado!=="Completada").length,bm=document.querySelector('[data-badge="mine"]');bm.textContent=nm;bm.hidden=!nm;
   const m=document.getElementById("main");
   document.querySelector(".navbar").hidden=S.needLogin;
-  if(S.needLogin){document.getElementById("fab").hidden=true;document.getElementById("apptitle").textContent="Ingresar";setConn(false,"Sin sesión");m.innerHTML=viewLogin();bindLogin(m);return}
+  if(S.needLogin){document.getElementById("fab").hidden=true;document.getElementById("apptitle").textContent="Ingreso administrador";setConn(false,"Sin sesión");m.innerHTML=viewLogin();bindLogin(m);return}
+  if(S.loaded&&!S.canEdit&&!S.nombre&&!DEMO){document.querySelector(".navbar").hidden=true;document.getElementById("fab").hidden=true;document.getElementById("apptitle").textContent="Ingresar";m.innerHTML=viewPick();bindPick(m);return}
   let html="";
   if(DEMO)html+=`<div class="banner">Modo demostración: los datos se guardan solo en este navegador. Para compartirlos con los jefes de turno, conecta Firebase (ver instructivo).</div>`;
-  if(!S.loaded){m.innerHTML=html+(S.loadErr?`<div class="banner">${esc(S.loadErr)}<div style="margin-top:10px">${S.email?`<button class="btn" id="retry">Cerrar sesión</button>`:`<button class="btn" id="retry">Reintentar</button>`}</div></div>`:`<p class="muted">Cargando tareas…</p>`);const rt=m.querySelector("#retry");if(rt)rt.onclick=()=>{if(S.email)logout();else location.reload()};return}
+  if(!S.loaded){m.innerHTML=html+(S.loadErr?`<div class="banner">${esc(S.loadErr)}<div style="margin-top:10px">${S.email?`<button class="btn" id="retry">Cerrar sesión</button>`:`<button class="btn" id="retry">Reintentar</button> <button class="btn ghost" id="toadm">Ingreso administrador</button>`}</div></div>`:`<p class="muted">Cargando tareas…</p>`);const rt=m.querySelector("#retry");if(rt)rt.onclick=()=>{if(S.email)logout();else location.reload()};const ta=m.querySelector("#toadm");if(ta)ta.onclick=goAdmin;return}
   if(S.view==="dash")html+=viewDash();
   else if(S.view==="proj")html+=projLocked()?viewProjLock():viewProj();
   else if(S.view==="list")html+=viewList();
@@ -772,7 +778,7 @@ function openRegForm(pid,tipo){
   dlg.innerHTML=`<div class="dlg-head"><div style="flex:1"><h3>${att?"Registro de asistencia":"Evidencia de avance"}</h3><div class="sub">${esc(p.nombre)}</div></div><button class="close" data-close aria-label="Cerrar">×</button></div>
   <div class="dlg-body"><div class="grid2">
     <div class="fl"><label for="g_fe">Fecha</label><input class="field" type="date" id="g_fe" value="${hoy()}"></div>
-    <div class="fl"><label for="g_po">Registrado por</label><select class="field" id="g_po">${(quien.length?quien:[""]).map(n=>`<option value="${esc(n)}">${esc(n||"Sin nombre")}</option>`).join("")}</select></div>
+    <div class="fl"><label for="g_po">Registrado por</label><select class="field" id="g_po">${(quien.length?quien:[""]).map(n=>`<option value="${esc(n)}"${n===S.nombre?" selected":""}>${esc(n||"Sin nombre")}</option>`).join("")}</select></div>
     ${att?`<div class="fl full"><label for="g_ac">Actividad o jornada <span class="muted">(opcional)</span></label><input class="field" id="g_ac" maxlength="120" placeholder="Ej.: Charla de inicio, turno noche, faena de buceo"></div>
     <div class="fl full"><label>Asistentes <span class="muted" id="g_cnt"></span></label><div class="att-list" id="g_att"></div>
       <div class="op-row" style="margin-top:8px"><input class="field" id="g_new" placeholder="Agregar asistente no incluido en el equipo" maxlength="80"><button type="button" class="btn" id="g_add">Agregar</button></div></div>`
@@ -826,10 +832,10 @@ function readDataURL(file){return new Promise((res,rej)=>{const r=new FileReader
 async function guardarArchivo(ownerId,f){
   const data=f.kind==="pdf"?await readDataURL(f.file):"data:image/jpeg;base64,"+await toB64(f.file);
   if(DEMO){const id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);try{localStorage.setItem("htp_demo_foto_"+id,data)}catch(e){throw new Error("El almacenamiento de este navegador está lleno.")}return id}
-  const r=await fdb.collection("fotos").add({tarea:ownerId,data:data,creado:new Date().toISOString(),usuario:S.email||""});return r.id;
+  const r=await fdb.collection("fotos").add({tarea:ownerId,data:data,creado:new Date().toISOString(),usuario:S.email||S.nombre||""});return r.id;
 }
 async function saveRegistro(reg,files){
-  const now=new Date().toISOString();reg.creado=now;reg.usuario=S.email||"";reg.fotos=[];
+  const now=new Date().toISOString();reg.creado=now;reg.usuario=S.email||S.nombre||"";reg.fotos=[];
   try{
     for(const f of files){const id=await guardarArchivo(reg.proyecto,f);reg.fotos.push({id:id,tipo:f.kind,nombre:f.kind==="pdf"?f.file.name:""})}
     if(DEMO){const d=demoDB();d.registros.push(reg);demoSave(d)}
@@ -944,7 +950,7 @@ function viewMine(){
 /* ---------- Ingreso ---------- */
 function viewLogin(){return `<section class="login panel">
   <h2>Seguimiento de tareas por turno</h2>
-  <p class="muted">Ingresa con el correo y la clave que te entregó el jefe de operaciones.</p>
+  <p class="muted">Acceso de administrador (jefe de operaciones). Ingresa con tu correo y clave.</p>
   <label class="sr" for="lg_u">Correo</label>
   <input class="field" id="lg_u" type="email" autocomplete="username" inputmode="email" placeholder="correo@empresa.cl">
   <label class="sr" for="lg_k">Clave</label>
@@ -952,7 +958,24 @@ function viewLogin(){return `<section class="login panel">
   <p class="hint" id="lg_e" role="alert"></p>
   <button class="btn primary" id="lg_b" style="width:100%;justify-content:center;padding:12px;margin-top:6px">Ingresar</button>
   <p style="margin:16px 0 0;text-align:center"><button class="linkbtn" id="lg_r">Olvidé mi clave</button></p>
+  <p style="margin:10px 0 0;text-align:center"><button class="linkbtn" id="lg_back">← Volver al ingreso por nombre</button></p>
 </section>`}
+function viewPick(){
+  const js=jefesLista();
+  return `<section class="login panel">
+  <h2>Seguimiento de tareas por turno</h2>
+  <p class="muted">Toca tu nombre para entrar.</p>
+  <div class="pick-list">${js.map(j=>`<button class="pick-btn" data-who="${esc(j.id)}"${j.nombre?"":" disabled"}><span class="pick-l" aria-hidden="true">${esc(j.id)}</span><span class="pick-t"><b>${esc(j.nombre||"Sin nombre registrado")}</b><small>Jefe de ${esc(j.turno)}</small></span></button>`).join("")}</div>
+  ${js.some(j=>j.nombre)?"":`<p class="hint">El jefe de operaciones aún no registra los nombres de los jefes de turno en Equipo.</p>`}
+  <p style="margin:18px 0 0;text-align:center"><button class="linkbtn" id="pk_adm">Ingreso administrador</button></p>
+</section>`}
+function bindPick(m){
+  m.querySelectorAll("[data-who]").forEach(b=>b.onclick=()=>{const j=jefesLista().find(x=>x.id===b.dataset.who);if(!j||!j.nombre)return;
+    S.nombre=j.nombre;S.miTurno=j.id;lsSet("htp_mi_turno",j.id);usrSet({nombre:j.nombre,turno:j.id});S.view="mine";render();window.scrollTo(0,0)});
+  m.querySelector("#pk_adm").onclick=goAdmin;
+}
+function goAdmin(){S.wantAdmin=true;S.needLogin=true;render()}
+function changeUser(){pkForget();S.nombre="";usrSet(null);S.view="dash";render()}
 function bindLogin(m){
   const u=m.querySelector("#lg_u"),k=m.querySelector("#lg_k"),b=m.querySelector("#lg_b"),e=m.querySelector("#lg_e");
   const msg=err=>{const c=(err&&err.code)||"";
@@ -968,6 +991,7 @@ function bindLogin(m){
   b.onclick=go;k.onkeydown=ev=>{if(ev.key==="Enter")go()};u.onkeydown=ev=>{if(ev.key==="Enter")k.focus()};
   m.querySelector("#lg_r").onclick=async()=>{const em=u.value.trim();if(!em){e.textContent="Escribe tu correo y vuelve a tocar “Olvidé mi clave”.";u.focus();return}
     try{await fauth.sendPasswordResetEmail(em);e.textContent="Te enviamos un correo para crear una clave nueva."}catch(err){e.textContent=msg(err)}};
+  m.querySelector("#lg_back").onclick=()=>{S.wantAdmin=false;S.needLogin=false;if(fauth&&!fauth.currentUser)anonIn();else render()};
   setTimeout(()=>u.focus(),50);
 }
 /* ---------- Equipo ---------- */
@@ -975,13 +999,13 @@ let draftCfg=null;
 function viewTeam(){
   if(!draftCfg)draftCfg=JSON.parse(JSON.stringify(S.cfg||DEFAULT_CFG));
   const ro=!S.canEdit;
-  let h=`<div class="sec-head"><div><h2>Equipo por turno</h2><p>${ro?"Solo el jefe de operaciones puede modificar el equipo.":"Registra al jefe de cada turno y a sus operadores mantenedores (de 2 a 4). Estos nombres aparecen al asignar tareas."}</p></div>
+  let h=`<div class="sec-head"><div><h2>Equipo por turno</h2><p>${ro?"Solo el jefe de operaciones puede modificar el equipo.":"Registra al jefe de cada turno y a sus operadores mantenedores (de 2 a 4). El nombre del jefe es el que aparece en la pantalla de ingreso; estos nombres también aparecen al asignar tareas."}</p></div>
   ${ro?"":`<div class="actions"><button class="btn primary" data-act="saveteam">Guardar equipo</button></div>`}</div><div class="team">`;
   draftCfg.turnos.forEach((t,i)=>{
     h+=`<section class="panel"><div class="shift-top" style="padding:0 0 4px"><div class="shift-letter" aria-hidden="true">${esc(t.id)}</div><div style="flex:1">
       <label for="tn${i}">Nombre del turno</label><input class="field" id="tn${i}" data-tf="nombre" data-i="${i}" value="${esc(t.nombre)}"${ro?" disabled":""}></div></div>
       <label for="tj${i}">Jefe de turno</label><input class="field" id="tj${i}" data-tf="jefe" data-i="${i}" value="${esc(t.jefe)}" placeholder="Nombre y apellido"${ro?" disabled":""}>
-      <label for="tc${i}">Correo del jefe (habilita su ingreso)</label><input class="field" id="tc${i}" type="email" data-tf="correo" data-i="${i}" value="${esc(t.correo||"")}" placeholder="correo@empresa.cl"${ro?" disabled":""}>
+      <label for="tc${i}">Correo del jefe (opcional)</label><input class="field" id="tc${i}" type="email" data-tf="correo" data-i="${i}" value="${esc(t.correo||"")}" placeholder="correo@empresa.cl"${ro?" disabled":""}>
       <label>Operadores mantenedores</label>
       ${t.operadores.map((o,j)=>`<div class="op-row"><input class="field" aria-label="Operador ${j+1}" data-op="${j}" data-i="${i}" value="${esc(o)}" placeholder="Operador ${j+1}"${ro?" disabled":""}>${!ro&&t.operadores.length>2?`<button class="icon-btn" data-rmop="${j}" data-i="${i}" aria-label="Quitar operador ${j+1}">×</button>`:""}</div>`).join("")}
       ${!ro&&t.operadores.length<4?`<button class="btn ghost" data-addop="${i}">${ico("plus")}Agregar operador</button>`:""}
@@ -991,7 +1015,7 @@ function viewTeam(){
   if(S.canEdit)h+=`<section class="panel" style="margin-top:14px"><h3 style="margin:0 0 4px">Clave del área Proyectos</h3><p class="muted" style="margin:0 0 6px">${pkSet()?"Hay una clave activa. Al cambiarla, todos deberán ingresar la nueva.":"Aún no hay clave: nadie puede entrar a Proyectos hasta que la crees."}</p>
     <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))"><input class="field" id="pk_c1" type="password" autocomplete="new-password" placeholder="${pkSet()?"Nueva clave":"Clave"}"><input class="field" id="pk_c2" type="password" autocomplete="new-password" placeholder="Repite la clave"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn primary" id="pk_change">${pkSet()?"Cambiar clave":"Crear clave"}</button>${pkSet()&&!projLocked()?`<button class="btn" data-act="lockproj">Bloquear Proyectos ahora</button>`:""}</div><p class="lock-err" id="pk_cerr" role="alert"></p></section>`;
-  if(!DEMO)h+=`<section class="panel" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between"><span>Sesión: <b>${esc(S.email)}</b> (${S.rol==="admin"?"jefe de operaciones":"jefe de turno"})</span><button class="btn" data-act="logout">Cerrar sesión</button></section>`;
+  if(!DEMO)h+=`<section class="panel" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">${S.canEdit?`<span>Sesión: <b>${esc(S.email)}</b> (administrador)</span><button class="btn" data-act="logout">Cerrar sesión</button>`:`<span>Ingresaste como <b>${esc(S.nombre||S.email)}</b> (jefe de turno)</span><button class="btn" data-act="chguser">Cambiar de usuario</button>`}</section>`;
   return h;
 }
 
@@ -1022,6 +1046,7 @@ function bindView(m){
   m.querySelectorAll("[data-addop]").forEach(b=>b.onclick=()=>{draftCfg.turnos[+b.dataset.addop].operadores.push("");render()});
   m.querySelectorAll("[data-rmop]").forEach(b=>b.onclick=()=>{draftCfg.turnos[+b.dataset.i].operadores.splice(+b.dataset.rmop,1);render()});
   const lo=m.querySelector("[data-act=logout]");if(lo)lo.onclick=()=>{if(confirm("¿Cerrar sesión en este dispositivo?"))logout()};
+  const cu=m.querySelector("[data-act=chguser]");if(cu)cu.onclick=()=>{if(confirm("¿Salir y elegir otro nombre?"))changeUser()};
   const st=m.querySelector("[data-act=saveteam]");
   if(st)st.onclick=async()=>{st.disabled=true;try{await saveCfg(JSON.parse(JSON.stringify(draftCfg)));toast("Equipo guardado")}catch(e){toast(e.message||"No se pudo guardar el equipo.",true)}st.disabled=false};
 }
@@ -1110,7 +1135,7 @@ function buildDetail(keep){
         <div class="quick">${[25,50,75,100].map(v=>`<button type="button" data-q="${v}">${v}%</button>`).join("")}</div></div>
       <div class="grid2" style="margin-top:12px">
         <div class="fl"><label for="r_es">Estado del proceso</label><select class="field" id="r_es">${ESTADOS.map(e=>`<option${es===e?" selected":""}>${e}</option>`).join("")}</select></div>
-        <div class="fl"><label for="r_po">Reportado por</label><select class="field" id="r_po">${(gente.length?gente:[""]).map(n=>`<option${keep&&keep.po===n?" selected":""} value="${esc(n)}">${esc(n||"Sin nombre en Equipo")}</option>`).join("")}</select></div>
+        <div class="fl"><label for="r_po">Reportado por</label><select class="field" id="r_po">${(gente.length?gente:[""]).map(n=>`<option${(keep?keep.po===n:n===S.nombre)?" selected":""} value="${esc(n)}">${esc(n||"Sin nombre en Equipo")}</option>`).join("")}</select></div>
         <div class="fl full"><label for="r_co">Comentario</label><textarea class="field" id="r_co" placeholder="Qué se hizo, qué falta, repuestos o apoyo requerido">${esc(keep&&keep.co||"")}</textarea></div>
         <div class="fl full"><label class="photo-drop" for="r_ph">${ico("cam")} Agregar fotos (cámara o galería)</label><input type="file" id="r_ph" accept="image/*" multiple class="sr">
           <div class="thumbs" id="r_th"></div></div>
@@ -1199,11 +1224,14 @@ function addScript(src){return new Promise((res,rej)=>{const s=document.createEl
 function startData(){
   unsubs.forEach(u=>u());unsubs=[];
   let a=false,b=false,c=false,e4=false;
-  const fail=e=>{S.loaded=false;S.loadErr=(e&&e.code==="permission-denied")?"Tu correo ("+S.email+") no está habilitado. Pide al jefe de operaciones que lo registre en la sección Equipo.":fbErr(e);setConn(false,"Sin acceso");render()};
+  const fail=e=>{S.loaded=false;S.loadErr=(e&&e.code==="permission-denied")?(S.email?"Tu correo ("+S.email+") no tiene acceso de administrador.":"Firebase rechazó el acceso. El jefe de operaciones debe publicar las reglas nuevas en Firebase (ver instructivo)."):fbErr(e);setConn(false,"Sin acceso");render()};
   const done=()=>{
     if(!(a&&b&&c&&e4))return;
     const first=!S.loaded;S.loaded=true;S.loadErr="";setConn(true,"En línea");
-    if(first&&!S.canEdit&&S.cfg){const tr=(S.cfg.turnos||[]).find(t=>t.correo===S.email);if(tr){S.miTurno=tr.id;lsSet("htp_mi_turno",tr.id);S.view="mine"}}
+    if(first&&!S.canEdit&&S.cfg){
+      if(S.email&&!S.nombre){const tr=(S.cfg.turnos||[]).find(t=>t.correo===S.email);if(tr&&tr.jefe){S.nombre=tr.jefe;usrSet({nombre:tr.jefe,turno:tr.id})}}
+      const sv=usrGet();if(sv&&S.nombre){const j=jefesLista().find(x=>x.nombre===S.nombre)||jefesLista().find(x=>x.id===sv.turno&&x.nombre);
+        if(j){S.nombre=j.nombre;S.miTurno=j.id;lsSet("htp_mi_turno",j.id);usrSet({nombre:j.nombre,turno:j.id});S.view="mine"}else{S.nombre="";usrSet(null)}}}
     if(first)render();else softRender();
   };
   unsubs.push(fdb.doc("config/equipo").onSnapshot(s=>{S.cfg=s.exists?s.data():DEFAULT_CFG;a=true;done()},fail));
@@ -1222,8 +1250,10 @@ function startData(){
   const admins=ADMIN_EMAILS.map(x=>String(x).trim().toLowerCase());
   fauth.onAuthStateChanged(u=>{
     unsubs.forEach(x=>x());unsubs=[];
+    if(!u&&!S.wantAdmin){pkForget();S.needLogin=false;S.email="";S.canEdit=false;S.loaded=false;S.loadErr="";render();anonIn();return}
     if(!u){pkForget();S.needLogin=true;S.email="";S.rol="";S.canEdit=false;S.loaded=false;S.loadErr="";S.tareas=[];S.proyectos=[];S.registros=[];S.view="dash";const d=document.getElementById("dlg");if(d.open)d.close();render();return}
-    S.needLogin=false;S.email=(u.email||"").toLowerCase();S.canEdit=admins.indexOf(S.email)>=0;S.rol=S.canEdit?"admin":"turno";
+    S.needLogin=false;S.wantAdmin=false;S.email=u.isAnonymous?"":(u.email||"").toLowerCase();S.canEdit=!!S.email&&admins.indexOf(S.email)>=0;S.rol=S.canEdit?"admin":"turno";
+    if(!S.canEdit){const sv=usrGet();S.nombre=sv&&sv.nombre?sv.nombre:""}else S.nombre="";
     S.loaded=false;S.loadErr="";render();startData();
   });
 })();
